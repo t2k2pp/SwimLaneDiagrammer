@@ -73,6 +73,9 @@ export const Canvas: React.FC = () => {
                     }
                 });
 
+                console.log('Selection box:', { minX, maxX, minY, maxY });
+                console.log('Selected shapes:', selectedShapeIds.length);
+
                 if (selectedShapeIds.length > 0) {
                     selectMultipleShapes(selectedShapeIds);
                 }
