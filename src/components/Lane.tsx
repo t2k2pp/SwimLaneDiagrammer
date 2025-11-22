@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const LaneComponent: React.FC<Props> = ({ lane, poolId }) => {
-    const { updateLaneHeight, addShape, shapes, selectItem, selectedIds } = useDiagramStore();
+    const { updateLaneHeight, addShape, shapes, selectItem, selectedIds, activeTool, clearSelection } = useDiagramStore();
     const [isResizing, setIsResizing] = useState(false);
     const startYRef = useRef(0);
     const startHeightRef = useRef(0);
@@ -34,6 +34,19 @@ export const LaneComponent: React.FC<Props> = ({ lane, poolId }) => {
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
+        // In select tool, allow canvas drag selection unless clicking lane title
+        if (activeTool === 'select') {
+            if ((e.target as HTMLElement).closest('.lane-title')) {
+                e.stopPropagation();
+                selectItem(lane.id);
+            } else if (e.target === e.currentTarget) {
+                // Clicking empty lane area - clear selection
+                clearSelection();
+            }
+            // Don't stop propagation for lane body to allow drag selection
+            return;
+        }
+
         e.stopPropagation();
         selectItem(lane.id);
     };

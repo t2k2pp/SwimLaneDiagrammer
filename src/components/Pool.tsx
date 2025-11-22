@@ -9,13 +9,28 @@ interface Props {
 }
 
 export const PoolComponent: React.FC<Props> = ({ pool }) => {
-    const { updatePoolPosition, addLane, selectItem, selectedIds } = useDiagramStore();
+    const { updatePoolPosition, addLane, selectItem, selectedIds, activeTool, clearSelection } = useDiagramStore();
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
     const isSelected = selectedIds.includes(pool.id);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if ((e.target as HTMLElement).closest('.pool-controls')) return;
+
+        // In select tool, allow canvas drag selection to work
+        if (activeTool === 'select') {
+            // Only stop propagation if clicking on pool header (not lane area)
+            if ((e.target as HTMLElement).closest('.pool-header')) {
+                e.stopPropagation();
+                selectItem(pool.id);
+            }
+            // If clicking empty space in pool, clear selection
+            else if (e.target === e.currentTarget) {
+                clearSelection();
+            }
+            return;
+        }
+
         e.stopPropagation();
         selectItem(pool.id);
 
