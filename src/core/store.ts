@@ -30,6 +30,8 @@ interface DiagramActions {
     undo: () => void;
     redo: () => void;
     addHistorySnapshot: () => void;
+    // Alignment
+    alignShapes: (alignment: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => void;
 }
 
 const SNAP_SIZE = 20;
@@ -307,13 +309,33 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     },
 
     updateShapePosition: (shapeId, position) => {
-        set((state) => ({
-            shapes: {
-                ...state.shapes,
-                [shapeId]: { ...state.shapes[shapeId], position: { x: snap(position.x), y: snap(position.y) } }
-            }
-        }));
-        get().addHistorySnapshot();
+        set((state) => {
+            const shape = state.shapes[shapeId];
+            if (!shape) return state;
+
+            // Calculate center position
+            const centerX = position.x + shape.size.width / 2;
+            const centerY = position.y + shape.size.height / 2;
+
+            // Snap center to grid
+            const snappedCenterX = snap(centerX);
+            const snappedCenterY = snap(centerY);
+
+            // Calculate top-left position from snapped center
+            const snappedX = snappedCenterX - shape.size.width / 2;
+            const snappedY = snappedCenterY - shape.size.height / 2;
+
+            return {
+                shapes: {
+                    ...state.shapes,
+                    [shapeId]: {
+                        ...shape,
+                        position: { x: snappedX, y: snappedY }
+                    }
+                }
+            };
+        });
+        // Note: History snapshot is saved in Shape.tsx on mouseup to avoid creating snapshots for every mousemove
     },
 
     selectItem: (id, multi) => set((state) => ({
@@ -408,5 +430,72 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
             history: state.history,
             historyIndex: newIndex
         });
+    },
+
+    // Alignment
+    alignShapes: (alignment) => {
+        const state = get();
+        const selectedShapes = state.selectedIds
+            .map(id => state.shapes[id])
+            .filter(shape => shape !== undefined);
+
+        if (selectedShapes.length < 2) return; // Need at least 2 shapes to align
+
+        let referenceValue: number;
+
+        // Calculate reference value based on alignment type
+        switch (alignment) {
+            case 'left':
+                referenceValue = Math.min(...selectedShapes.map(s => s.position.x));
+                break;
+            case 'center':
+                const avgCenterX = selectedShapes.reduce((sum, s) => sum + s.position.x + s.size.width / 2, 0) / selectedShapes.length;
+                referenceValue = avgCenterX;
+                break;
+            case 'right':
+                referenceValue = Math.max(...selectedShapes.map(s => s.position.x + s.size.width));
+                break;
+            case 'top':
+                referenceValue = Math.min(...selectedShapes.map(s => s.position.y));
+                break;
+            case 'middle':
+                const avgCenterY = selectedShapes.reduce((sum, s) => sum + s.position.y + s.size.height / 2, 0) / selectedShapes.length;
+                referenceValue = avgCenterY;
+                break;
+            case 'bottom':
+                referenceValue = Math.max(...selectedShapes.map(s => s.position.y + s.size.height));
+                break;
+        }
+
+        const newShapes = { ...state.shapes };
+        selectedShapes.forEach(shape => {
+            let newPosition = { ...shape.position };
+
+            switch (alignment) {
+                case 'left':
+                    newPosition.x = referenceValue;
+                    break;
+                case 'center':
+                    newPosition.x = referenceValue - shape.size.width / 2;
+                    break;
+                case 'right':
+                    newPosition.x = referenceValue - shape.size.width;
+                    break;
+                case 'top':
+                    newPosition.y = referenceValue;
+                    break;
+                case 'middle':
+                    newPosition.y = referenceValue - shape.size.height / 2;
+                    break;
+                case 'bottom':
+                    newPosition.y = referenceValue - shape.size.height;
+                    break;
+            }
+
+            newShapes[shape.id] = { ...shape, position: newPosition };
+        });
+
+        set({ shapes: newShapes });
+        get().addHistorySnapshot();
     },
 }));

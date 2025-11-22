@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const ShapeComponent: React.FC<Props> = ({ shape }) => {
-    const { selectItem, selectedIds, updateShapePosition, activeTool, connectionSourceId, setConnectionSource, addConnection } = useDiagramStore();
+    const { selectItem, selectedIds, updateShapePosition, activeTool, connectionSourceId, setConnectionSource, addConnection, addHistorySnapshot } = useDiagramStore();
     const isSelected = selectedIds.includes(shape.id);
     const isConnectionSource = connectionSourceId === shape.id;
     const [isDragging, setIsDragging] = useState(false);
@@ -59,6 +59,9 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
         };
 
         const handleMouseUp = () => {
+            if (isDragging) {
+                addHistorySnapshot(); // Save history after drag completes
+            }
             setIsDragging(false);
         };
 
@@ -71,7 +74,7 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging, dragStart, shape.id, updateShapePosition, activeTool]);
+    }, [isDragging, dragStart, shape.id, updateShapePosition, activeTool, addHistorySnapshot]);
 
     return (
         <div

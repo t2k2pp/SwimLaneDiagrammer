@@ -1,16 +1,18 @@
 import React, { useRef } from 'react';
-import { Square, Circle, Diamond, PlayCircle, StopCircle, MousePointer, Save, Upload, Trash2, ArrowRight } from 'lucide-react';
+import { Square, Circle, Diamond, PlayCircle, StopCircle, MousePointer, Save, Upload, Trash2, ArrowRight, Undo2, Redo2, AlignLeft, AlignCenter, AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical } from 'lucide-react';
 import { useDiagramStore } from '../core/store';
 import './Toolbar.css';
 
 export const Toolbar: React.FC = () => {
-    const { pools, shapes, clearDiagram, loadDiagram, activeTool, setActiveTool } = useDiagramStore();
+    const { pools, shapes, clearDiagram, loadDiagram, activeTool, setActiveTool, undo, redo, historyIndex, history, selectedIds, alignShapes } = useDiagramStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleDragStart = (e: React.DragEvent, type: string) => {
         e.dataTransfer.setData('application/reactflow', type);
         e.dataTransfer.effectAllowed = 'move';
     };
+
+    const canAlign = selectedIds.length >= 2;
 
     return (
         <div className="toolbar">
@@ -20,6 +22,45 @@ export const Toolbar: React.FC = () => {
                 </button>
                 <button className={`tool-btn ${activeTool === 'connection' ? 'active' : ''}`} title="Connection Tool" onClick={() => setActiveTool('connection')}>
                     <ArrowRight size={20} />
+                </button>
+                <button
+                    className="tool-btn"
+                    title="Undo (Ctrl+Z)"
+                    onClick={undo}
+                    disabled={historyIndex <= 0}
+                >
+                    <Undo2 size={20} />
+                </button>
+                <button
+                    className="tool-btn"
+                    title="Redo (Ctrl+Shift+Z)"
+                    onClick={redo}
+                    disabled={historyIndex >= history.length - 1}
+                >
+                    <Redo2 size={20} />
+                </button>
+            </div>
+
+            <div className="separator" />
+
+            <div className="tool-group">
+                <button className="tool-btn" title="Align Left" onClick={() => alignShapes('left')} disabled={!canAlign}>
+                    <AlignStartVertical size={20} />
+                </button>
+                <button className="tool-btn" title="Align Center" onClick={() => alignShapes('center')} disabled={!canAlign}>
+                    <AlignCenterVertical size={20} />
+                </button>
+                <button className="tool-btn" title="Align Right" onClick={() => alignShapes('right')} disabled={!canAlign}>
+                    <AlignEndVertical size={20} />
+                </button>
+                <button className="tool-btn" title="Align Top" onClick={() => alignShapes('top')} disabled={!canAlign}>
+                    <AlignLeft size={20} style={{ transform: 'rotate(90deg)' }} />
+                </button>
+                <button className="tool-btn" title="Align Middle" onClick={() => alignShapes('middle')} disabled={!canAlign}>
+                    <AlignCenter size={20} style={{ transform: 'rotate(90deg)' }} />
+                </button>
+                <button className="tool-btn" title="Align Bottom" onClick={() => alignShapes('bottom')} disabled={!canAlign}>
+                    <AlignRight size={20} style={{ transform: 'rotate(90deg)' }} />
                 </button>
             </div>
 

@@ -24,57 +24,57 @@ export const Canvas: React.FC = () => {
             }
 
             // Copy/Paste
-            if (e.ctrl Key || e.metaKey) {
-        if (e.key === 'c') {
-            copyShape();
-        } else if (e.key === 'v') {
-            pasteShape();
-        }
-    }
-};
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'c') {
+                    copyShape();
+                } else if (e.key === 'v') {
+                    pasteShape();
+                }
+            }
+        };
 
-window.addEventListener('keydown', handleKeyDown);
-return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
     }, [copyShape, pasteShape, undo, redo]);
 
-const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-};
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    };
 
-const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const type = e.dataTransfer.getData('application/reactflow');
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        const type = e.dataTransfer.getData('application/reactflow');
 
-    if (type) {
-        addPool({ x: e.clientX, y: e.clientY });
-    }
-};
+        if (type) {
+            addPool({ x: e.clientX, y: e.clientY });
+        }
+    };
 
-return (
-    <div
-        className="canvas"
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        onMouseDown={(e) => {
-            if (e.target === e.currentTarget) {
-                clearSelection();
-            }
-        }}
-        onDoubleClick={(e) => {
-            if (e.target === e.currentTarget) {
-                addPool({ x: e.clientX, y: e.clientY });
-            }
-        }}
-    >
-        {pools.map(pool => (
-            <PoolComponent key={pool.id} pool={pool} />
-        ))}
-        <ConnectionLayer />
+    return (
+        <div
+            className="canvas"
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onMouseDown={(e) => {
+                if (e.target === e.currentTarget) {
+                    clearSelection();
+                }
+            }}
+            onDoubleClick={(e) => {
+                if (e.target === e.currentTarget) {
+                    addPool({ x: e.clientX, y: e.clientY });
+                }
+            }}
+        >
+            {pools.map(pool => (
+                <PoolComponent key={pool.id} pool={pool} />
+            ))}
+            <ConnectionLayer />
 
-        <div className="canvas-hint">
-            Drag shapes from toolbar or double click to add a Pool
+            <div className="canvas-hint">
+                Drag shapes from toolbar or double click to add a Pool
+            </div>
         </div>
-    </div>
-);
+    );
 };
