@@ -1,10 +1,12 @@
 import React from 'react';
 import { useDiagramStore } from '../core/store';
 import { Trash2 } from 'lucide-react';
+import { ConfirmDialog } from './ConfirmDialog';
 import './PropertiesPanel.css';
 
 export const PropertiesPanel: React.FC = () => {
-    const { pools, shapes, selectedIds, deletePool, updatePool, updateLane } = useDiagramStore();
+    const { pools, shapes, selectedIds, deletePool, deleteShape, updatePool, updateLane } = useDiagramStore();
+    const [confirmDialog, setConfirmDialog] = React.useState<{ message: string; onConfirm: () => void } | null>(null);
 
     if (selectedIds.length === 0) {
         return (
@@ -25,64 +27,77 @@ export const PropertiesPanel: React.FC = () => {
     const selectedPool = pools.find(p => p.id === selectedId);
     if (selectedPool) {
         return (
-            <div className="properties-panel">
-                <div className="properties-header">
-                    <h3>Pool プロパティ</h3>
-                </div>
-                <div className="properties-content">
-                    <div className="property-group">
-                        <label>タイトル</label>
-                        <input
-                            type="text"
-                            value={selectedPool.title}
-                            onChange={(e) => updatePool(selectedPool.id, { title: e.target.value })}
-                        />
+            <>
+                <div className="properties-panel">
+                    <div className="properties-header">
+                        <h3>Pool プロパティ</h3>
                     </div>
-                    <div className="property-group">
-                        <label>幅</label>
-                        <input
-                            type="number"
-                            value={selectedPool.width}
-                            onChange={(e) => updatePool(selectedPool.id, { width: parseInt(e.target.value) })}
-                            min={200}
-                        />
-                    </div>
-                    <div className="property-group">
-                        <label>向き</label>
-                        <div className="orientation-label">
-                            {selectedPool.orientation === 'horizontal' ? '水平 (レーン縦積み)' : '垂直 (レーン横並び)'}
+                    <div className="properties-content">
+                        <div className="property-group">
+                            <label>タイトル</label>
+                            <input
+                                type="text"
+                                value={selectedPool.title}
+                                onChange={(e) => updatePool(selectedPool.id, { title: e.target.value })}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>幅</label>
+                            <input
+                                type="number"
+                                value={selectedPool.width}
+                                onChange={(e) => updatePool(selectedPool.id, { width: parseInt(e.target.value) })}
+                                min={200}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>向き</label>
+                            <div className="orientation-label">
+                                {selectedPool.orientation === 'horizontal' ? '水平 (レーン縦積み)' : '垂直 (レーン横並び)'}
+                            </div>
+                        </div>
+                        <div className="property-group">
+                            <label>レーン</label>
+                            <div className="lanes-list">
+                                {selectedPool.lanes.map((lane) => (
+                                    <div key={lane.id} className="lane-item">
+                                        <input
+                                            type="text"
+                                            value={lane.title}
+                                            onChange={(e) => updateLane(selectedPool.id, lane.id, { title: e.target.value })}
+                                            className="lane-title-input"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="property-actions">
+                            <button
+                                className="delete-btn"
+                                onClick={() => {
+                                    setConfirmDialog({
+                                        message: 'このPoolを削除しますか？',
+                                        onConfirm: () => {
+                                            deletePool(selectedPool.id);
+                                            setConfirmDialog(null);
+                                        }
+                                    });
+                                }}
+                            >
+                                <Trash2 size={16} />
+                                Poolを削除
+                            </button>
                         </div>
                     </div>
-                    <div className="property-group">
-                        <label>レーン</label>
-                        <div className="lanes-list">
-                            {selectedPool.lanes.map((lane) => (
-                                <div key={lane.id} className="lane-item">
-                                    <input
-                                        type="text"
-                                        value={lane.title}
-                                        onChange={(e) => updateLane(selectedPool.id, lane.id, { title: e.target.value })}
-                                        className="lane-title-input"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="property-actions">
-                        <button
-                            className="delete-btn"
-                            onClick={() => {
-                                if (window.confirm('このPoolを削除しますか？')) {
-                                    deletePool(selectedPool.id);
-                                }
-                            }}
-                        >
-                            <Trash2 size={16} />
-                            Poolを削除
-                        </button>
-                    </div>
                 </div>
-            </div>
+                {confirmDialog && (
+                    <ConfirmDialog
+                        message={confirmDialog.message}
+                        onConfirm={confirmDialog.onConfirm}
+                        onCancel={() => setConfirmDialog(null)}
+                    />
+                )}
+            </>
         );
     }
 
@@ -123,28 +138,54 @@ export const PropertiesPanel: React.FC = () => {
     const selectedShape = shapes[selectedId];
     if (selectedShape) {
         return (
-            <div className="properties-panel">
-                <div className="properties-header">
-                    <h3>Shape プロパティ</h3>
-                </div>
-                <div className="properties-content">
-                    <div className="property-group">
-                        <label>ラベル</label>
-                        <input
-                            type="text"
-                            value={selectedShape.label || ''}
-                            onChange={(e) => {
-                                const { updateShape } = useDiagramStore.getState();
-                                updateShape(selectedShape.id, { label: e.target.value });
-                            }}
-                        />
+            <>
+                <div className="properties-panel">
+                    <div className="properties-header">
+                        <h3>Shape プロパティ</h3>
                     </div>
-                    <div className="property-group">
-                        <label>タイプ</label>
-                        <div className="type-label">{selectedShape.type}</div>
+                    <div className="properties-content">
+                        <div className="property-group">
+                            <label>ラベル</label>
+                            <input
+                                type="text"
+                                value={selectedShape.label || ''}
+                                onChange={(e) => {
+                                    const { updateShape } = useDiagramStore.getState();
+                                    updateShape(selectedShape.id, { label: e.target.value });
+                                }}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>タイプ</label>
+                            <div className="type-label">{selectedShape.type}</div>
+                        </div>
+                        <div className="property-actions">
+                            <button
+                                className="delete-btn"
+                                onClick={() => {
+                                    setConfirmDialog({
+                                        message: 'このShapeを削除しますか？\n関連するConnectionも削除されます。',
+                                        onConfirm: () => {
+                                            deleteShape(selectedShape.id);
+                                            setConfirmDialog(null);
+                                        }
+                                    });
+                                }}
+                            >
+                                <Trash2 size={16} />
+                                Shapeを削除
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+                {confirmDialog && (
+                    <ConfirmDialog
+                        message={confirmDialog.message}
+                        onConfirm={confirmDialog.onConfirm}
+                        onCancel={() => setConfirmDialog(null)}
+                    />
+                )}
+            </>
         );
     }
 

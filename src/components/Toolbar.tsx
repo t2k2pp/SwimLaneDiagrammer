@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Undo2, Redo2, Save, Upload, Trash2, FolderOpen, PanelRightClose, PanelRight } from 'lucide-react';
+import { ConfirmDialog } from './ConfirmDialog';
 import { useDiagramStore } from '../core/store';
 import { ProjectManager } from './ProjectManager';
 import './Toolbar.css';
@@ -8,6 +9,7 @@ export const Toolbar: React.FC = () => {
     const { pools, shapes, clearDiagram, loadDiagram, undo, redo, historyIndex, history, currentProjectName, propertiesPanelVisible, setPropertiesPanelVisible } = useDiagramStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isProjectManagerOpen, setIsProjectManagerOpen] = useState(false);
+    const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
     const handleSave = () => {
         const data = JSON.stringify({ pools, shapes }, null, 2);
@@ -21,9 +23,13 @@ export const Toolbar: React.FC = () => {
     };
 
     const handleClear = () => {
-        if (window.confirm('Are you sure you want to clear the diagram?')) {
-            clearDiagram();
-        }
+        setConfirmDialog({
+            message: 'ダイアグラムをクリアしますか？この操作は取り消せません。',
+            onConfirm: () => {
+                clearDiagram();
+                setConfirmDialog(null);
+            }
+        });
     };
 
     return (
@@ -138,6 +144,14 @@ export const Toolbar: React.FC = () => {
                 isOpen={isProjectManagerOpen}
                 onClose={() => setIsProjectManagerOpen(false)}
             />
+
+            {confirmDialog && (
+                <ConfirmDialog
+                    message={confirmDialog.message}
+                    onConfirm={confirmDialog.onConfirm}
+                    onCancel={() => setConfirmDialog(null)}
+                />
+            )}
         </>
     );
 };

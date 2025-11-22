@@ -21,10 +21,21 @@ export const LaneComponent: React.FC<Props> = ({ lane, poolId, poolOrientation }
         e.preventDefault();
         e.stopPropagation();
         const type = e.dataTransfer.getData('application/reactflow');
+        const offsetX = parseFloat(e.dataTransfer.getData('offsetX') || '0');
+        const offsetY = parseFloat(e.dataTransfer.getData('offsetY') || '0');
+
         if (type) {
             const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            let x = e.clientX - rect.left - offsetX;
+            let y = e.clientY - rect.top - offsetY;
+
+            // Adjust for lane header
+            if (poolOrientation === 'horizontal') {
+                x -= 40; // Subtract header width
+            } else {
+                y -= 40; // Subtract header height
+            }
+
             addShape(lane.id, type as any, { x, y });
         }
     };

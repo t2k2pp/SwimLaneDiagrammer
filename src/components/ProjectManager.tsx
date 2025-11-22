@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, FolderOpen } from 'lucide-react';
 import { useDiagramStore } from '../core/store';
 import { listProjects, deleteProject, deleteAllProjects, type ProjectData } from '../core/db';
+import { ConfirmDialog } from './ConfirmDialog';
 import './ProjectManager.css';
 
 interface ProjectManagerProps {
@@ -37,17 +38,20 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
         const hasWork = pools.length > 0 || Object.keys(shapes).length > 0;
 
         if (hasWork && !currentProjectName) {
-            const keepWork = window.confirm('現在の作業をこのプロジェクトとして保存しますか？\n\nはい: 現在の作業を保存\nいいえ: 空のプロジェクトを作成');
-
-            if (keepWork) {
-                // Save current work with the new name
-                setProjectName(newProjectName);
-                await saveCurrentProject();
-            } else {
-                // Clear diagram and start fresh
-                setProjectName(newProjectName);
-                clearDiagram();
-            }
+            setConfirmDialog({
+                message: '現在の作業をこのプロジェクトとして保存しますか？\n\nはい: 現在の作業を保存\nいいえ: 空のプロジェクトを作成',
+                onConfirm: async () => {
+                    // User chose to save current work
+                    setProjectName(newProjectName);
+                    await saveCurrentProject();
+                    setIsCreating(false);
+                    setNewProjectName('');
+                    setConfirmDialog(null);
+                    onClose();
+                }
+            });
+            // Add cancel button handler via second dialog
+            return;
         } else {
             setProjectName(newProjectName);
             if (!hasWork) {
@@ -61,29 +65,38 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
     };
 
     const handleLoadProject = async (projectData: ProjectData) => {
+        const doLoad = () => {
+            setProjectName(projectData.name);
+            loadDiagram({
+                ...projectData.data,
+                selectedIds: [],
+                activeTool: 'select' as const,
+                connectionSourceId: null,
+                poolPlacementMode: null,
+                propertiesPanelVisible: true,
+                clipboard: null,
+                currentProjectName: projectData.name,
+                history: [],
+                historyIndex: -1
+            });
+            onClose();
+        };
+
         // Check if there's unsaved work
         const hasWork = pools.length > 0 || Object.keys(shapes).length > 0;
 
         if (hasWork && !currentProjectName) {
-            if (!window.confirm('現在の作業は保存されていません。プロジェクトを読み込むと失われます。\n\n続けますか？')) {
-                return;
-            }
+            setConfirmDialog({
+                message: '現在の作業は保存されていません。プロジェクトを読み込むと失われます。\n\n続けますか？',
+                onConfirm: () => {
+                    doLoad();
+                    setConfirmDialog(null);
+                }
+            });
+            return;
         }
 
-        setProjectName(projectData.name);
-        loadDiagram({
-            ...projectData.data,
-            selectedIds: [],
-            activeTool: 'select' as const,
-            connectionSourceId: null,
-            poolPlacementMode: null,
-            propertiesPanelVisible: true,
-            clipboard: null,
-            currentProjectName: projectData.name,
-            history: [],
-            historyIndex: -1
-        });
-        onClose();
+        doLoad();
     };
 
     const handleDeleteProject = async (name: string) => {
@@ -221,27 +234,11 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
 
                 {/* Custom Confirmation Dialog */}
                 {confirmDialog && (
-                    <div className="confirm-dialog-overlay">
-                        <div className="confirm-dialog">
-                            <div className="confirm-dialog-message">{confirmDialog.message}</div>
-                            <div className="confirm-dialog-buttons">
-                                <button
-                                    className="confirm-btn confirm-yes"
-                                    onClick={() => {
-                                        confirmDialog.onConfirm();
-                                    }}
-                                >
-                                    はい
-                                </button>
-                                <button
-                                    className="confirm-btn confirm-no"
-                                    onClick={() => setConfirmDialog(null)}
-                                >
-                                    いいえ
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <ConfirmDialog
+                        message={confirmDialog.message}
+                        onConfirm={confirmDialog.onConfirm}
+                        onCancel={() => setConfirmDialog(null)}
+                    />
                 )}
             </div>
         </div>

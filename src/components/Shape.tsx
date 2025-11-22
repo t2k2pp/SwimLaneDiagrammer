@@ -35,18 +35,7 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
         });
     };
 
-    const handleDragStart = (e: React.DragEvent) => {
-        if (activeTool === 'connection') {
-            e.preventDefault(); // Disable dragging in connection mode
-            return;
-        }
-        e.dataTransfer.setData('application/shapeId', shape.id);
-        e.dataTransfer.effectAllowed = 'move';
-        // Store initial offset
-        const rect = e.currentTarget.getBoundingClientRect();
-        e.dataTransfer.setData('offsetX', (e.clientX - rect.left).toString());
-        e.dataTransfer.setData('offsetY', (e.clientY - rect.top).toString());
-    };
+
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -80,8 +69,6 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
         <div
             className={`shape shape-${shape.type} ${isSelected ? 'selected' : ''} ${isConnectionSource ? 'connection-source' : ''}`}
             onMouseDown={handleMouseDown}
-            draggable={activeTool === 'select'}
-            onDragStart={handleDragStart}
             style={{
                 left: shape.position.x,
                 top: shape.position.y,

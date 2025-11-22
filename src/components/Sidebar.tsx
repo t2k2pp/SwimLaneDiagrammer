@@ -9,6 +9,13 @@ export const Sidebar: React.FC = () => {
     const handleDragStart = (e: React.DragEvent, type: string) => {
         e.dataTransfer.setData('application/reactflow', type);
         e.dataTransfer.effectAllowed = 'move';
+
+        // Calculate offset of mouse within the dragged element
+        const rect = e.currentTarget.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
+        e.dataTransfer.setData('offsetX', offsetX.toString());
+        e.dataTransfer.setData('offsetY', offsetY.toString());
     };
 
     const canAlign = selectedIds.length >= 2;

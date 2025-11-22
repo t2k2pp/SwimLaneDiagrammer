@@ -6,7 +6,7 @@ import './Canvas.css';
 import type { Position } from '../core/types';
 
 export const Canvas: React.FC = () => {
-    const { pools, shapes, addPool, clearSelection, copyShape, pasteShape, undo, redo, activeTool, poolPlacementMode, selectMultipleShapes } = useDiagramStore();
+    const { pools, shapes, connections, selectedIds, addPool, clearSelection, copyShape, pasteShape, undo, redo, activeTool, poolPlacementMode, selectMultipleShapes, deleteShape, deletePool, deleteConnection } = useDiagramStore();
     const [selectionBox, setSelectionBox] = useState<{ start: Position; current: Position } | null>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +32,34 @@ export const Canvas: React.FC = () => {
                     copyShape();
                 } else if (e.key === 'v') {
                     pasteShape();
+                }
+            }
+
+            // Delete: Delete or Backspace key
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                e.preventDefault();
+                if (selectedIds.length === 0) return;
+
+                const selectedId = selectedIds[0];
+
+                // Check if it's a pool
+                const isPool = pools.some(p => p.id === selectedId);
+                if (isPool) {
+                    deletePool(selectedId);
+                    return;
+                }
+
+                // Check if it's a connection  
+                const isConnection = connections.some(c => c.id === selectedId);
+                if (isConnection) {
+                    deleteConnection(selectedId);
+                    return;
+                }
+
+                // Check if it's a shape
+                if (shapes[selectedId]) {
+                    deleteShape(selectedId);
+                    return;
                 }
             }
         };

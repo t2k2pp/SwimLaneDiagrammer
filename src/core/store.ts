@@ -5,6 +5,8 @@ import type { DiagramState, Pool, Lane, Shape, Position, ShapeType, ID, Connecti
 interface DiagramActions {
     addPool: (position: Position, orientation?: 'horizontal' | 'vertical') => void;
     deletePool: (poolId: ID) => void;
+    deleteShape: (shapeId: ID) => void;
+    deleteConnection: (connectionId: ID) => void;
     addLane: (poolId: ID) => void;
     deleteLane: (poolId: ID, laneId: ID) => void;
     addShape: (laneId: ID, type: ShapeType, position: Position) => void;
@@ -116,59 +118,118 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
         const state = get();
         if (!state.clipboard || state.clipboard.shapes.length === 0) return;
 
+        const clipboardShapes = state.clipboard.shapes;
+        const clipboardConnections = state.clipboard.connections;
+
+        // 1. Determine Target Lane
+        let targetLaneId: ID | null = null;
+
+        // Check if a Lane is selected
+        if (state.selectedIds.length === 1) {
+            // Check if selected item is a Lane
+            for (const pool of state.pools) {
+                const lane = pool.lanes.find(l => l.id === state.selectedIds[0]);
+                if (lane) {
+                    targetLaneId = lane.id;
+                    break;
+                }
+            }
+
+            // If not a lane, check if it's a Pool (use first lane)
+            if (!targetLaneId) {
+                const pool = state.pools.find(p => p.id === state.selectedIds[0]);
+                if (pool && pool.lanes.length > 0) {
+                    targetLaneId = pool.lanes[0].id;
+                }
+            }
+        }
+
+        // Fallback: Try to find original lanes or use first available lane
         const idMap = new Map<ID, ID>();
         const newShapes: Record<ID, Shape> = {};
         const newShapeIds: ID[] = [];
+        let updatedPools = [...state.pools];
 
-        // 1. Create new shapes with new IDs
-        state.clipboard.shapes.forEach(original => {
+        // Calculate bounding box of clipboard shapes for relative positioning
+        const minX = Math.min(...clipboardShapes.map(s => s.position.x));
+        const minY = Math.min(...clipboardShapes.map(s => s.position.y));
+
+        clipboardShapes.forEach(original => {
             const newId = uuidv4();
             idMap.set(original.id, newId);
+
+            // Determine effective target lane for this specific shape
+            let effectiveTargetLaneId = targetLaneId;
+
+            // If no explicit target selected, try original parent
+            if (!effectiveTargetLaneId) {
+                // Check if original parent still exists
+                const originalParentExists = state.pools.some(p => p.lanes.some(l => l.id === original.parentId));
+                if (originalParentExists) {
+                    effectiveTargetLaneId = original.parentId;
+                } else {
+                    // Fallback to first available lane in the system
+                    if (state.pools.length > 0 && state.pools[0].lanes.length > 0) {
+                        effectiveTargetLaneId = state.pools[0].lanes[0].id;
+                    }
+                }
+            }
+
+            if (!effectiveTargetLaneId) return; // Should not happen unless diagram is empty
+
+            // Calculate new position
+            let newPosition = { ...original.position };
+
+            if (effectiveTargetLaneId !== original.parentId) {
+                // Pasting into different lane: Reposition relative to top-left (50, 50)
+                newPosition = {
+                    x: original.position.x - minX + 50,
+                    y: original.position.y - minY + 50
+                };
+            } else {
+                // Pasting into same lane: Offset slightly
+                newPosition = {
+                    x: original.position.x + 20,
+                    y: original.position.y + 20
+                };
+            }
 
             const newShape: Shape = {
                 ...original,
                 id: newId,
-                position: { x: original.position.x + 20, y: original.position.y + 20 },
+                parentId: effectiveTargetLaneId,
+                position: newPosition,
                 label: (original.label || 'Shape').endsWith('(Copy)') ? original.label : `${original.label || 'Shape'} (Copy)`,
             };
 
             newShapes[newId] = newShape;
             newShapeIds.push(newId);
+
+            // Add to pool/lane structure
+            updatedPools = updatedPools.map(pool => ({
+                ...pool,
+                lanes: pool.lanes.map(lane => {
+                    if (lane.id === effectiveTargetLaneId) {
+                        return {
+                            ...lane,
+                            shapeIds: [...lane.shapeIds, newId]
+                        };
+                    }
+                    return lane;
+                })
+            }));
         });
 
         // 2. Create new connections
-        const newConnections: Connection[] = state.clipboard.connections.map(conn => ({
+        const newConnections: Connection[] = clipboardConnections.map(conn => ({
             id: uuidv4(),
             sourceShapeId: idMap.get(conn.sourceShapeId)!,
             targetShapeId: idMap.get(conn.targetShapeId)!,
         }));
 
-        // 3. Add shapes to pools/lanes
-        const newPools = state.pools.map(pool => {
-            let lanesChanged = false;
-            const newLanes = [...pool.lanes];
-
-            state.clipboard!.shapes.forEach(original => {
-                const laneIndex = pool.lanes.findIndex(l => l.id === original.parentId);
-                if (laneIndex !== -1) {
-                    const newId = idMap.get(original.id)!;
-                    newLanes[laneIndex] = {
-                        ...newLanes[laneIndex],
-                        shapeIds: [...newLanes[laneIndex].shapeIds, newId]
-                    };
-                    lanesChanged = true;
-                }
-            });
-
-            if (lanesChanged) {
-                return { ...pool, lanes: newLanes };
-            }
-            return pool;
-        });
-
         set({
             shapes: { ...state.shapes, ...newShapes },
-            pools: newPools,
+            pools: updatedPools,
             connections: [...state.connections, ...newConnections],
             selectedIds: newShapeIds,
         });
@@ -225,6 +286,46 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
                 return !pool.lanes.some(l => l.id === id);
             }),
         });
+        get().addHistorySnapshot();
+    },
+
+    deleteShape: (shapeId: ID) => {
+        const state = get();
+        const shape = state.shapes[shapeId];
+        if (!shape) return;
+
+        // Remove shape from its parent lane
+        const updatedPools = state.pools.map(pool => ({
+            ...pool,
+            lanes: pool.lanes.map(lane => ({
+                ...lane,
+                shapeIds: lane.shapeIds.filter(id => id !== shapeId)
+            }))
+        }));
+
+        // Remove the shape
+        const newShapes = { ...state.shapes };
+        delete newShapes[shapeId];
+
+        // Remove all connections involving this shape (cascade delete)
+        const newConnections = state.connections.filter(
+            c => c.sourceShapeId !== shapeId && c.targetShapeId !== shapeId
+        );
+
+        set({
+            pools: updatedPools,
+            shapes: newShapes,
+            connections: newConnections,
+            selectedIds: state.selectedIds.filter(id => id !== shapeId),
+        });
+        get().addHistorySnapshot();
+    },
+
+    deleteConnection: (connectionId: ID) => {
+        set((state) => ({
+            connections: state.connections.filter(c => c.id !== connectionId),
+            selectedIds: state.selectedIds.filter(id => id !== connectionId),
+        }));
         get().addHistorySnapshot();
     },
 
