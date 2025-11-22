@@ -17,8 +17,8 @@
 }
 
 .shape.selected {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+    border-color: #4a9eff;
+    box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.3);
     z-index: 20;
 }
 

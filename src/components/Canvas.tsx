@@ -64,8 +64,39 @@ export const Canvas: React.FC = () => {
 
                 const selectedShapeIds: string[] = [];
                 Object.values(shapes).forEach(shape => {
-                    const shapeCenterX = shape.position.x + shape.size.width / 2;
-                    const shapeCenterY = shape.position.y + shape.size.height / 2;
+                    // Get Pool and Lane for this shape
+                    let poolX = 0, poolY = 0, laneY = 0;
+                    for (const pool of pools) {
+                        for (const lane of pool.lanes) {
+                            if (lane.shapeIds.includes(shape.id)) {
+                                poolX = pool.position.x;
+                                poolY = pool.position.y;
+                                // Calculate lane Y offset
+                                let currentY = 50; // Pool header height
+                                for (const l of pool.lanes) {
+                                    if (l.id === lane.id) {
+                                        laneY = currentY;
+                                        break;
+                                    }
+                                    currentY += l.height;
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    // Shape absolute position
+                    const absoluteX = poolX + shape.position.x;
+                    const absoluteY = poolY + laneY + shape.position.y;
+                    const shapeCenterX = absoluteX + shape.size.width / 2;
+                    const shapeCenterY = absoluteY + shape.size.height / 2;
+
+                    console.log(`Shape ${shape.id}:`, {
+                        shapePos: shape.position,
+                        poolOffset: { poolX, poolY, laneY },
+                        absolute: { absoluteX, absoluteY },
+                        center: { shapeCenterX, shapeCenterY }
+                    });
 
                     if (shapeCenterX >= minX && shapeCenterX <= maxX &&
                         shapeCenterY >= minY && shapeCenterY <= maxY) {
@@ -74,7 +105,7 @@ export const Canvas: React.FC = () => {
                 });
 
                 console.log('Selection box:', { minX, maxX, minY, maxY });
-                console.log('Selected shapes:', selectedShapeIds.length);
+                console.log('Selected shapes:', selectedShapeIds);
 
                 if (selectedShapeIds.length > 0) {
                     selectMultipleShapes(selectedShapeIds);
