@@ -49,7 +49,7 @@ export interface DiagramState {
     selectedIds: ID[];
     activeTool: 'select' | 'connection';
     connectionSourceId: ID | null;
-    clipboardShapeId: ID | null;
+    clipboard: { shapes: Shape[]; connections: Connection[] } | null;
     currentProjectName: string | null;
     history: DiagramState[];
     historyIndex: number;

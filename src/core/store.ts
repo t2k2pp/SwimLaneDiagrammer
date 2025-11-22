@@ -47,7 +47,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     selectedIds: [],
     activeTool: 'select',
     connectionSourceId: null,
-    clipboardShapeId: null,
+    clipboard: null,
     currentProjectName: null,
     history: [],
     historyIndex: -1,
@@ -84,45 +84,87 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     },
 
     copyShape: () => set((state) => {
-        const selectedId = state.selectedIds[0];
-        if (!selectedId || !state.shapes[selectedId]) return {};
-        return { clipboardShapeId: selectedId };
+        if (state.selectedIds.length === 0) return {};
+
+        const selectedShapes = state.selectedIds
+            .map(id => state.shapes[id])
+            .filter(s => s !== undefined);
+
+        if (selectedShapes.length === 0) return {};
+
+        // Find connections where both source and target are in the selection
+        const selectedConnections = state.connections.filter(conn =>
+            state.selectedIds.includes(conn.sourceShapeId) &&
+            state.selectedIds.includes(conn.targetShapeId)
+        );
+
+        return {
+            clipboard: {
+                shapes: selectedShapes,
+                connections: selectedConnections
+            }
+        };
     }),
 
     pasteShape: () => {
         const state = get();
-        if (!state.clipboardShapeId) return;
-        const original = state.shapes[state.clipboardShapeId];
-        if (!original) return;
+        if (!state.clipboard || state.clipboard.shapes.length === 0) return;
 
-        const newShapeId = uuidv4();
-        const newShape: Shape = {
-            ...original,
-            id: newShapeId,
-            position: { x: original.position.x + 20, y: original.position.y + 20 },
-            label: original.label + ' (Copy)',
-        };
+        const idMap = new Map<ID, ID>();
+        const newShapes: Record<ID, Shape> = {};
+        const newShapeIds: ID[] = [];
 
-        const poolId = state.pools.find(p => p.lanes.some(l => l.id === original.parentId))?.id;
-        if (!poolId) return;
+        // 1. Create new shapes with new IDs
+        state.clipboard.shapes.forEach(original => {
+            const newId = uuidv4();
+            idMap.set(original.id, newId);
 
-        const newPools = state.pools.map(pool => {
-            if (pool.id !== poolId) return pool;
-            const laneIndex = pool.lanes.findIndex(l => l.id === original.parentId);
-            if (laneIndex === -1) return pool;
-
-            const newLanes = [...pool.lanes];
-            newLanes[laneIndex] = {
-                ...newLanes[laneIndex],
-                shapeIds: [...newLanes[laneIndex].shapeIds, newShapeId]
+            const newShape: Shape = {
+                ...original,
+                id: newId,
+                position: { x: original.position.x + 20, y: original.position.y + 20 },
+                label: (original.label || 'Shape').endsWith('(Copy)') ? original.label : `${original.label || 'Shape'} (Copy)`,
             };
-            return { ...pool, lanes: newLanes };
+
+            newShapes[newId] = newShape;
+            newShapeIds.push(newId);
+        });
+
+        // 2. Create new connections
+        const newConnections: Connection[] = state.clipboard.connections.map(conn => ({
+            id: uuidv4(),
+            sourceShapeId: idMap.get(conn.sourceShapeId)!,
+            targetShapeId: idMap.get(conn.targetShapeId)!,
+        }));
+
+        // 3. Add shapes to pools/lanes
+        const newPools = state.pools.map(pool => {
+            let lanesChanged = false;
+            const newLanes = [...pool.lanes];
+
+            state.clipboard!.shapes.forEach(original => {
+                const laneIndex = pool.lanes.findIndex(l => l.id === original.parentId);
+                if (laneIndex !== -1) {
+                    const newId = idMap.get(original.id)!;
+                    newLanes[laneIndex] = {
+                        ...newLanes[laneIndex],
+                        shapeIds: [...newLanes[laneIndex].shapeIds, newId]
+                    };
+                    lanesChanged = true;
+                }
+            });
+
+            if (lanesChanged) {
+                return { ...pool, lanes: newLanes };
+            }
+            return pool;
         });
 
         set({
-            shapes: { ...state.shapes, [newShapeId]: newShape },
+            shapes: { ...state.shapes, ...newShapes },
             pools: newPools,
-            selectedIds: [newShapeId],
+            connections: [...state.connections, ...newConnections],
+            selectedIds: newShapeIds,
         });
         get().addHistorySnapshot();
     },
@@ -339,9 +381,20 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
         // Note: History snapshot is saved in Shape.tsx on mouseup to avoid creating snapshots for every mousemove
     },
 
-    selectItem: (id, multi) => set((state) => ({
-        selectedIds: multi ? [...state.selectedIds, id] : [id]
-    })),
+    selectItem: (id, multi) => set((state) => {
+        if (multi) {
+            if (state.selectedIds.includes(id)) {
+                // Toggle off if already selected
+                return { selectedIds: state.selectedIds.filter(i => i !== id) };
+            } else {
+                // Add to selection
+                return { selectedIds: [...state.selectedIds, id] };
+            }
+        } else {
+            // Single selection
+            return { selectedIds: [id] };
+        }
+    }),
 
     selectMultipleShapes: (ids) => set({ selectedIds: ids }),
 
@@ -388,7 +441,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
             selectedIds: state.selectedIds,
             activeTool: state.activeTool,
             connectionSourceId: state.connectionSourceId,
-            clipboardShapeId: state.clipboardShapeId,
+            clipboard: state.clipboard,
             currentProjectName: state.currentProjectName,
             history: [],
             historyIndex: -1
