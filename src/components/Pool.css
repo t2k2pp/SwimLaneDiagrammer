@@ -1,0 +1,67 @@
+.pool {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-secondary);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pool.is-selected {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+}
+
+.pool-header {
+    height: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-md);
+    background-color: var(--pool-header-bg);
+    border-bottom: 2px solid var(--color-border);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    cursor: grab;
+    user-select: none;
+}
+
+.pool-header:active {
+    cursor: grabbing;
+}
+
+.pool-title {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.pool-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.pool-controls button {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-sm);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pool-controls button:hover {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+}
+
+.pool-lanes {
+    display: flex;
+    flex-direction: column;
+}

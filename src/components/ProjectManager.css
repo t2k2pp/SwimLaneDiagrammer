@@ -1,0 +1,268 @@
+.project-manager-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.project-manager {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.project-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.project-manager-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--color-text-primary);
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+}
+
+.project-manager-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.save-current-work-section {
+    padding: var(--spacing-md);
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid #ffc107;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.warning-message {
+    color: #ffc107;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.save-current-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: #ffc107;
+    color: #000;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.save-current-btn:hover {
+    background: #ffb300;
+}
+
+.new-project-section {
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.new-project-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+.new-project-btn:hover {
+    background: #4640d1;
+}
+
+.new-project-form {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.new-project-form input {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+}
+
+.new-project-form input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.new-project-form button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.new-project-form button:hover {
+    background: #4640d1;
+}
+
+.new-project-form button:last-child {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+}
+
+.new-project-form button:last-child:hover {
+    background: #333;
+    color: var(--color-text-primary);
+}
+
+.project-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.project-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.project-list-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+}
+
+.delete-all-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: transparent;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.delete-all-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.no-projects {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    color: var(--color-text-muted);
+    gap: var(--spacing-sm);
+}
+
+.projects {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.project-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.project-item:hover {
+    background: #333;
+    border-color: var(--color-accent);
+}
+
+.project-item.active {
+    border-color: var(--color-accent);
+    background: rgba(100, 108, 255, 0.1);
+}
+
+.project-info {
+    flex: 1;
+}
+
+.project-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.project-meta {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.delete-project-btn {
+    padding: var(--spacing-xs);
+    background: transparent;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-project-btn:hover {
+    background: rgba(220, 53, 69, 0.1);
+}

@@ -1,0 +1,24 @@
+.canvas {
+    flex: 1;
+    background-color: #1e1e1e;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    position: relative;
+    overflow: auto;
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.canvas-hint {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+}
