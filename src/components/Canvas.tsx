@@ -54,7 +54,7 @@ export const Canvas: React.FC = () => {
             }
         };
 
-        const handleMouseUp = () => {
+        const handleMouseUp = (e: MouseEvent) => {
             if (selectionBox) {
                 // Find shapes within selection box
                 const minX = Math.min(selectionBox.start.x, selectionBox.current.x);
@@ -109,6 +109,9 @@ export const Canvas: React.FC = () => {
 
                 if (selectedShapeIds.length > 0) {
                     selectMultipleShapes(selectedShapeIds);
+                } else if (!(e as MouseEvent).shiftKey) {
+                    // Clear selection if clicking empty space (and not holding shift)
+                    selectMultipleShapes([]);
                 }
 
                 setSelectionBox(null);
