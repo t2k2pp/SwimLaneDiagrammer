@@ -1,68 +1,53 @@
 .sidebar {
-    width: 250px;
-    background-color: var(--color-bg-secondary);
-    border-left: 1px solid var(--color-border);
+    width: 60px;
+    background-color: var(--color-bg-primary);
+    border-right: 1px solid var(--color-border);
     display: flex;
     flex-direction: column;
-    z-index: 10;
-}
-
-.sidebar-header {
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--color-border);
-    font-weight: 600;
-    color: var(--color-text-primary);
-}
-
-.sidebar-content {
-    padding: var(--spacing-md);
-    flex: 1;
+    padding: 8px 0;
+    gap: 4px;
     overflow-y: auto;
 }
 
-.sidebar-hint {
-    color: var(--color-text-muted);
-    font-size: 0.9rem;
-    text-align: center;
-    margin-top: var(--spacing-xl);
-}
-
-.property-group {
+.sidebar-group {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
+    gap: 4px;
+    padding: 0 8px;
 }
 
-.property-group label {
-    font-size: 0.8rem;
-    color: var(--color-text-secondary);
-}
-
-.property-group input {
-    background-color: var(--color-bg-tertiary);
+.sidebar-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    outline: none;
-}
-
-.property-group input:focus {
-    border-color: var(--color-accent);
-}
-
-.delete-btn {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+    color: var(--color-text-primary);
 }
 
-.delete-btn:hover {
-    background-color: #c82333;
+.sidebar-btn:hover:not(:disabled) {
+    background-color: var(--color-bg-tertiary);
+    border-color: var(--color-primary);
+}
+
+.sidebar-btn.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.sidebar-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.sidebar-separator {
+    height: 1px;
+    background-color: var(--color-border);
+    margin: 4px 8px;
 }

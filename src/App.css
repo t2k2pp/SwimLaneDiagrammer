@@ -1,65 +1,13 @@
-.app-container {
-  width: 100vw;
-  height: 100vh;
+.app {
   display: flex;
   flex-direction: column;
-  background-color: var(--color-bg-primary);
-}
-
-.app-header {
-  height: 50px;
-  background-color: var(--color-bg-secondary);
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  padding: 0 var(--spacing-md);
-  gap: var(--spacing-md);
-}
-
-.app-header h1 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.current-project {
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  margin-left: auto;
-}
-
-.current-project strong {
-  color: var(--color-accent);
-}
-
-.project-manager-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-
-.project-manager-btn:hover {
-  background: #4640d1;
-}
-
-.app-body {
-  flex: 1;
-  display: flex;
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
-.app-content {
+.app-main {
+  display: flex;
   flex: 1;
-  position: relative;
   overflow: hidden;
 }

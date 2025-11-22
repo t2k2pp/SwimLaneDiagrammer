@@ -1,69 +1,73 @@
 .toolbar {
-    width: 60px;
-    background-color: var(--color-bg-secondary);
-    border-right: 1px solid var(--color-border);
+    height: 50px;
+    background-color: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border);
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-md) 0;
-    gap: var(--spacing-md);
-    z-index: 10;
+    padding: 0 12px;
+    gap: 12px;
 }
 
-.tool-group {
+.toolbar-left {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 8px;
     align-items: center;
 }
 
-.tool-separator {
-    width: 30px;
-    height: 1px;
-    background-color: var(--color-border);
+.toolbar-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
 }
 
 .tool-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--color-text-secondary);
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 4px;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all 0.2s;
-}
-
-.tool-btn:hover {
-    background-color: var(--color-bg-tertiary);
     color: var(--color-text-primary);
 }
 
-.tool-btn.active {
-    background-color: var(--color-accent);
-    color: var(--color-accent-foreground);
+.tool-btn:hover:not(:disabled) {
+    background-color: var(--color-bg-tertiary);
+    border-color: var(--color-primary);
 }
 
-.tool-item {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.tool-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.tool-btn.project-btn {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.tool-btn.project-btn:hover {
+    background-color: #3a7fe5;
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background-color: var(--color-border);
+}
+
+.current-project-name {
+    font-size: 14px;
     color: var(--color-text-secondary);
-    cursor: grab;
-    border-radius: var(--radius-md);
-    transition: all 0.2s;
 }
 
-.tool-item:hover {
-    background-color: var(--color-bg-tertiary);
-    color: var(--color-text-primary);
-}
-
-.tool-item:active {
-    cursor: grabbing;
+.current-project-name::before {
+    content: "📁 ";
 }
