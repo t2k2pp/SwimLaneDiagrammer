@@ -78,7 +78,7 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
 
     return (
         <div
-            className={`shape shape-${shape.type} ${isSelected ? 'is-selected' : ''} ${isConnectionSource ? 'connection-source' : ''}`}
+            className={`shape shape-${shape.type} ${isSelected ? 'selected' : ''} ${isConnectionSource ? 'connection-source' : ''}`}
             onMouseDown={handleMouseDown}
             draggable={activeTool === 'select'}
             onDragStart={handleDragStart}

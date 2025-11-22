@@ -14,6 +14,7 @@ interface DiagramActions {
     updateShape: (shapeId: ID, updates: Partial<Shape>) => void;
     updateShapePosition: (shapeId: ID, position: Position) => void;
     selectItem: (id: ID, multi?: boolean) => void;
+    selectMultipleShapes: (ids: ID[]) => void;
     clearSelection: () => void;
     clearDiagram: () => void;
     loadDiagram: (state: DiagramState) => void;
@@ -341,6 +342,8 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     selectItem: (id, multi) => set((state) => ({
         selectedIds: multi ? [...state.selectedIds, id] : [id]
     })),
+
+    selectMultipleShapes: (ids) => set({ selectedIds: ids }),
 
     clearSelection: () => set({ selectedIds: [] }),
 
