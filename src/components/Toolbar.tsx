@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { Undo2, Redo2, Save, Upload, Trash2, FolderOpen } from 'lucide-react';
+import { Undo2, Redo2, Save, Upload, Trash2, FolderOpen, PanelRightClose, PanelRight } from 'lucide-react';
 import { useDiagramStore } from '../core/store';
 import { ProjectManager } from './ProjectManager';
 import './Toolbar.css';
 
 export const Toolbar: React.FC = () => {
-    const { pools, shapes, clearDiagram, loadDiagram, undo, redo, historyIndex, history, currentProjectName } = useDiagramStore();
+    const { pools, shapes, clearDiagram, loadDiagram, undo, redo, historyIndex, history, currentProjectName, propertiesPanelVisible, setPropertiesPanelVisible } = useDiagramStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isProjectManagerOpen, setIsProjectManagerOpen] = useState(false);
 
@@ -116,6 +116,13 @@ export const Toolbar: React.FC = () => {
                             {currentProjectName}
                         </div>
                     )}
+                    <button
+                        className="tool-btn"
+                        title={propertiesPanelVisible ? "プロパティパネルを非表示" : "プロパティパネルを表示"}
+                        onClick={() => setPropertiesPanelVisible(!propertiesPanelVisible)}
+                    >
+                        {propertiesPanelVisible ? <PanelRightClose size={20} /> : <PanelRight size={20} />}
+                    </button>
                     <button
                         className="tool-btn project-btn"
                         title="Project Manager"

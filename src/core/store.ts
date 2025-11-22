@@ -22,6 +22,7 @@ interface DiagramActions {
     setActiveTool: (tool: 'select' | 'connection') => void;
     setConnectionSource: (sourceId: ID | null) => void;
     setPoolPlacementMode: (mode: 'horizontal' | 'vertical' | null) => void;
+    setPropertiesPanelVisible: (visible: boolean) => void;
     updateLane: (poolId: ID, laneId: ID, updates: Partial<Lane>) => void;
     copyShape: () => void;
     pasteShape: () => void;
@@ -49,6 +50,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     activeTool: 'select',
     connectionSourceId: null,
     poolPlacementMode: null,
+    propertiesPanelVisible: true,
     clipboard: null,
     currentProjectName: null,
     history: [],
@@ -57,6 +59,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     setActiveTool: (tool) => set({ activeTool: tool, connectionSourceId: null, selectedIds: [], poolPlacementMode: null }),
     setConnectionSource: (sourceId) => set({ connectionSourceId: sourceId }),
     setPoolPlacementMode: (mode) => set({ poolPlacementMode: mode, activeTool: 'select' }),
+    setPropertiesPanelVisible: (visible) => set({ propertiesPanelVisible: visible }),
 
     addConnection: (sourceId, targetId) => {
         const state = get();
@@ -446,6 +449,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
             activeTool: state.activeTool,
             connectionSourceId: state.connectionSourceId,
             poolPlacementMode: state.poolPlacementMode,
+            propertiesPanelVisible: state.propertiesPanelVisible,
             clipboard: state.clipboard,
             currentProjectName: state.currentProjectName,
             history: [],

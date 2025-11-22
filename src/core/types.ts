@@ -51,6 +51,7 @@ export interface DiagramState {
     activeTool: 'select' | 'connection';
     connectionSourceId: ID | null;
     poolPlacementMode: 'horizontal' | 'vertical' | null;
+    propertiesPanelVisible: boolean;
     clipboard: { shapes: Shape[]; connections: Connection[] } | null;
     currentProjectName: string | null;
     history: DiagramState[];

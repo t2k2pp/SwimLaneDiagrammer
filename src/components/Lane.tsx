@@ -55,15 +55,24 @@ export const LaneComponent: React.FC<Props> = ({ lane, poolId, poolOrientation }
     const handleResizeStart = (e: React.MouseEvent) => {
         e.stopPropagation();
         setIsResizing(true);
-        startYRef.current = e.clientY;
+        if (poolOrientation === 'horizontal') {
+            startYRef.current = e.clientY;
+        } else {
+            startYRef.current = e.clientX; // For vertical pools, track horizontal movement
+        }
         startHeightRef.current = lane.height;
     };
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (isResizing) {
-                const deltaY = e.clientY - startYRef.current;
-                const newHeight = Math.max(50, startHeightRef.current + deltaY);
+                let delta: number;
+                if (poolOrientation === 'horizontal') {
+                    delta = e.clientY - startYRef.current;
+                } else {
+                    delta = e.clientX - startYRef.current; // For vertical pools, use horizontal movement
+                }
+                const newHeight = Math.max(50, startHeightRef.current + delta);
                 updateLaneHeight(poolId, lane.id, newHeight);
             }
         };

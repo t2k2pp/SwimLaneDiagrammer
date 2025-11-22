@@ -13,6 +13,7 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
     const [projects, setProjects] = useState<ProjectData[]>([]);
     const [newProjectName, setNewProjectName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
     const { setProjectName, loadDiagram, clearDiagram, currentProjectName, pools, shapes, saveCurrentProject } = useDiagramStore();
 
     useEffect(() => {
@@ -76,6 +77,7 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
             activeTool: 'select' as const,
             connectionSourceId: null,
             poolPlacementMode: null,
+            propertiesPanelVisible: true,
             clipboard: null,
             currentProjectName: projectData.name,
             history: [],
@@ -85,28 +87,38 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
     };
 
     const handleDeleteProject = async (name: string) => {
-        if (!window.confirm(`プロジェクト "${name}" を削除しますか？`)) {
-            return;
-        }
+        console.log('handleDeleteProject called with:', name);
+        setConfirmDialog({
+            message: `プロジェクト "${name}" を削除しますか？`,
+            onConfirm: async () => {
+                console.log('Deleting project:', name);
+                await deleteProject(name);
+                await refreshProjects();
 
-        await deleteProject(name);
-        await refreshProjects();
-
-        if (currentProjectName === name) {
-            setProjectName(null);
-            clearDiagram();
-        }
+                if (currentProjectName === name) {
+                    setProjectName(null);
+                    clearDiagram();
+                }
+                console.log('Project deleted successfully');
+                setConfirmDialog(null);
+            }
+        });
     };
 
     const handleDeleteAll = async () => {
-        if (!window.confirm('すべてのプロジェクトを削除しますか？この操作は取り消せません。')) {
-            return;
-        }
-
-        await deleteAllProjects();
-        await refreshProjects();
-        setProjectName(null);
-        clearDiagram();
+        console.log('handleDeleteAll called');
+        setConfirmDialog({
+            message: 'すべてのプロジェクトを削除しますか？この操作は取り消せません。',
+            onConfirm: async () => {
+                console.log('Deleting all projects');
+                await deleteAllProjects();
+                await refreshProjects();
+                setProjectName(null);
+                clearDiagram();
+                console.log('All projects deleted');
+                setConfirmDialog(null);
+            }
+        });
     };
 
     if (!isOpen) return null;
@@ -206,6 +218,31 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
                         )}
                     </div>
                 </div>
+
+                {/* Custom Confirmation Dialog */}
+                {confirmDialog && (
+                    <div className="confirm-dialog-overlay">
+                        <div className="confirm-dialog">
+                            <div className="confirm-dialog-message">{confirmDialog.message}</div>
+                            <div className="confirm-dialog-buttons">
+                                <button
+                                    className="confirm-btn confirm-yes"
+                                    onClick={() => {
+                                        confirmDialog.onConfirm();
+                                    }}
+                                >
+                                    はい
+                                </button>
+                                <button
+                                    className="confirm-btn confirm-no"
+                                    onClick={() => setConfirmDialog(null)}
+                                >
+                                    いいえ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
