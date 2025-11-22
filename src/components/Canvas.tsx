@@ -141,7 +141,9 @@ export const Canvas: React.FC = () => {
     };
 
     const handleCanvasMouseDown = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget && canvasRef.current) {
+        // Allow drag selection even if clicking on Pool/Lane (bubbled events)
+        // Shapes and specific controls stop propagation, so they won't trigger this
+        if (canvasRef.current) {
             if (activeTool === 'select') {
                 const rect = canvasRef.current.getBoundingClientRect();
                 // Start drag selection with Canvas-relative coordinates
@@ -156,7 +158,11 @@ export const Canvas: React.FC = () => {
                     }
                 });
             } else {
-                clearSelection();
+                // If not in select mode, clicking canvas clears selection
+                // But only if clicking directly on canvas, to avoid clearing when interacting with other elements
+                if (e.target === e.currentTarget) {
+                    clearSelection();
+                }
             }
         }
     };
