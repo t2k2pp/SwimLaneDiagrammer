@@ -476,15 +476,38 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
             const snappedX = snappedCenterX - shape.size.width / 2;
             const snappedY = snappedCenterY - shape.size.height / 2;
 
-            return {
-                shapes: {
-                    ...state.shapes,
-                    [shapeId]: {
-                        ...shape,
-                        position: { x: snappedX, y: snappedY }
-                    }
-                }
+            const newPosition = { x: snappedX, y: snappedY };
+
+            // Calculate delta
+            const deltaX = newPosition.x - shape.position.x;
+            const deltaY = newPosition.y - shape.position.y;
+
+            if (deltaX === 0 && deltaY === 0) return state;
+
+            const newShapes = { ...state.shapes };
+
+            // Update the dragged shape
+            newShapes[shapeId] = {
+                ...shape,
+                position: newPosition
             };
+
+            // Update other selected shapes if the dragged shape is part of the selection
+            if (state.selectedIds.includes(shapeId)) {
+                state.selectedIds.forEach(id => {
+                    if (id !== shapeId && newShapes[id]) {
+                        newShapes[id] = {
+                            ...newShapes[id],
+                            position: {
+                                x: newShapes[id].position.x + deltaX,
+                                y: newShapes[id].position.y + deltaY
+                            }
+                        };
+                    }
+                });
+            }
+
+            return { shapes: newShapes };
         });
         // Note: History snapshot is saved in Shape.tsx on mouseup to avoid creating snapshots for every mousemove
     },

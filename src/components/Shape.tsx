@@ -27,7 +27,17 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
             return;
         }
 
-        selectItem(shape.id, e.shiftKey);
+        // If shift key is pressed, toggle selection
+        if (e.shiftKey) {
+            selectItem(shape.id, true);
+        }
+        // If not shift key, and shape is NOT selected, select it (clearing others)
+        else if (!isSelected) {
+            selectItem(shape.id, false);
+        }
+        // If shape IS selected and no shift key, do nothing to selection
+        // This preserves multi-selection for dragging
+
         setIsDragging(true);
         setDragStart({
             x: e.clientX - shape.position.x,
