@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDiagramStore } from '../core/store';
-import { MousePointer, ArrowRight, Square, Circle, Diamond, PlayCircle, StopCircle, AlignStartVertical, AlignCenterVertical, AlignEndVertical, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { MousePointer, ArrowRight, Square, Circle, Diamond, PlayCircle, StopCircle, AlignStartVertical, AlignCenterVertical, AlignEndVertical, AlignLeft, AlignCenter, AlignRight, Columns2, Rows2 } from 'lucide-react';
 import './Sidebar.css';
 
 export const Sidebar: React.FC = () => {
-    const { activeTool, setActiveTool, selectedIds, alignShapes } = useDiagramStore();
+    const { activeTool, setActiveTool, poolPlacementMode, setPoolPlacementMode, selectedIds, alignShapes } = useDiagramStore();
 
     const handleDragStart = (e: React.DragEvent, type: string) => {
         e.dataTransfer.setData('application/reactflow', type);
@@ -30,6 +30,25 @@ export const Sidebar: React.FC = () => {
                     onClick={() => setActiveTool('connection')}
                 >
                     <ArrowRight size={20} />
+                </button>
+            </div>
+
+            {/* Pool Creation */}
+            <div className="sidebar-separator" />
+            <div className="sidebar-group">
+                <button
+                    className={`sidebar-btn ${poolPlacementMode === 'horizontal' ? 'active' : ''}`}
+                    title="Horizontal Pool (Lanes stack vertically)"
+                    onClick={() => setPoolPlacementMode(poolPlacementMode === 'horizontal' ? null : 'horizontal')}
+                >
+                    <Rows2 size={20} />
+                </button>
+                <button
+                    className={`sidebar-btn ${poolPlacementMode === 'vertical' ? 'active' : ''}`}
+                    title="Vertical Pool (Lanes arranged horizontally)"
+                    onClick={() => setPoolPlacementMode(poolPlacementMode === 'vertical' ? null : 'vertical')}
+                >
+                    <Columns2 size={20} />
                 </button>
             </div>
 

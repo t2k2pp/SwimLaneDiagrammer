@@ -11,6 +11,10 @@
     height: 100%;
 }
 
+.canvas.pool-placement {
+    cursor: crosshair;
+}
+
 .canvas-hint {
     position: fixed;
     bottom: 20px;

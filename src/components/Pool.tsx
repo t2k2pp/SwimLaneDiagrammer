@@ -54,11 +54,12 @@ export const PoolComponent: React.FC<Props> = ({ pool }) => {
 
     return (
         <div
-            className={`pool ${isSelected ? 'is-selected' : ''}`}
+            className={`pool pool-${pool.orientation} ${isSelected ? 'is-selected' : ''}`}
             style={{
                 left: pool.position.x,
                 top: pool.position.y,
-                width: pool.width
+                width: pool.orientation === 'horizontal' ? pool.width : undefined,
+                height: pool.orientation === 'vertical' ? pool.width : undefined
             }}
         >
             <div className="pool-header" onMouseDown={handleMouseDown}>
@@ -69,7 +70,7 @@ export const PoolComponent: React.FC<Props> = ({ pool }) => {
             </div>
             <div className="pool-lanes">
                 {pool.lanes.map(lane => (
-                    <LaneComponent key={lane.id} lane={lane} poolId={pool.id} />
+                    <LaneComponent key={lane.id} lane={lane} poolId={pool.id} poolOrientation={pool.orientation} />
                 ))}
             </div>
         </div>

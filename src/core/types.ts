@@ -33,6 +33,7 @@ export interface Pool {
     title: string;
     position: Position; // Absolute position on canvas
     width: number;
+    orientation: 'horizontal' | 'vertical'; // horizontal: lanes stack vertically, vertical: lanes arranged horizontally
     lanes: Lane[];
 }
 
@@ -49,6 +50,7 @@ export interface DiagramState {
     selectedIds: ID[];
     activeTool: 'select' | 'connection';
     connectionSourceId: ID | null;
+    poolPlacementMode: 'horizontal' | 'vertical' | null;
     clipboard: { shapes: Shape[]; connections: Connection[] } | null;
     currentProjectName: string | null;
     history: DiagramState[];

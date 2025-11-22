@@ -75,6 +75,7 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
             selectedIds: [],
             activeTool: 'select' as const,
             connectionSourceId: null,
+            poolPlacementMode: null,
             clipboard: null,
             currentProjectName: projectData.name,
             history: [],

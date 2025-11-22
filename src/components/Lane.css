@@ -54,3 +54,36 @@
 .lane-resize-handle:hover {
     background-color: var(--color-accent);
 }
+
+/* Vertical pool lanes (arranged horizontally) */
+.lane-vertical {
+    flex-direction: column;
+    border-bottom: none;
+    border-right: 1px solid var(--lane-border);
+}
+
+.lane-vertical:last-child {
+    border-right: none;
+}
+
+.lane-vertical .lane-header {
+    width: auto;
+    height: 40px;
+    border-right: none;
+    border-bottom: 1px solid var(--lane-border);
+}
+
+.lane-vertical .lane-title-text {
+    writing-mode: initial;
+    transform: none;
+}
+
+.lane-vertical .lane-resize-handle {
+    bottom: auto;
+    left: auto;
+    right: 0;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    cursor: ew-resize;
+}

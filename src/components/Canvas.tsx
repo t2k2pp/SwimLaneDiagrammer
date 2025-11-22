@@ -6,7 +6,7 @@ import './Canvas.css';
 import type { Position } from '../core/types';
 
 export const Canvas: React.FC = () => {
-    const { pools, shapes, addPool, clearSelection, copyShape, pasteShape, undo, redo, activeTool, selectMultipleShapes } = useDiagramStore();
+    const { pools, shapes, addPool, clearSelection, copyShape, pasteShape, undo, redo, activeTool, poolPlacementMode, selectMultipleShapes } = useDiagramStore();
     const [selectionBox, setSelectionBox] = useState<{ start: Position; current: Position } | null>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -144,6 +144,12 @@ export const Canvas: React.FC = () => {
     };
 
     const handleCanvasMouseDown = (e: React.MouseEvent) => {
+        // Handle pool placement mode
+        if (poolPlacementMode && e.target === e.currentTarget) {
+            addPool({ x: e.clientX, y: e.clientY }, poolPlacementMode);
+            return;
+        }
+
         // Allow drag selection even if clicking on Pool/Lane (bubbled events)
         // Shapes and specific controls stop propagation, so they won't trigger this
         if (canvasRef.current) {
@@ -173,15 +179,10 @@ export const Canvas: React.FC = () => {
     return (
         <div
             ref={canvasRef}
-            className="canvas"
+            className={`canvas ${poolPlacementMode ? 'pool-placement' : ''}`}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onMouseDown={handleCanvasMouseDown}
-            onDoubleClick={(e) => {
-                if (e.target === e.currentTarget) {
-                    addPool({ x: e.clientX, y: e.clientY });
-                }
-            }}
         >
             {pools.map(pool => (
                 <PoolComponent key={pool.id} pool={pool} />

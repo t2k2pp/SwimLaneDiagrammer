@@ -65,3 +65,31 @@
     display: flex;
     flex-direction: column;
 }
+
+/* Vertical pool: lanes arranged horizontally */
+.pool-vertical {
+    flex-direction: row;
+}
+
+.pool-vertical .pool-header {
+    width: 40px;
+    min-width: 40px;
+    height: auto;
+    writing-mode: vertical-rl;
+    border-bottom: none;
+    border-right: 2px solid var(--color-border);
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.pool-vertical .pool-title {
+    transform: rotate(180deg);
+}
+
+.pool-vertical .pool-controls {
+    flex-direction: column;
+    transform: rotate(180deg);
+}
+
+.pool-vertical .pool-lanes {
+    flex-direction: row;
+}

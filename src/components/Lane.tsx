@@ -7,9 +7,10 @@ import './Lane.css';
 interface Props {
     lane: Lane;
     poolId: string;
+    poolOrientation: 'horizontal' | 'vertical';
 }
 
-export const LaneComponent: React.FC<Props> = ({ lane, poolId }) => {
+export const LaneComponent: React.FC<Props> = ({ lane, poolId, poolOrientation }) => {
     const { updateLaneHeight, addShape, shapes, selectItem, selectedIds, activeTool, clearSelection } = useDiagramStore();
     const [isResizing, setIsResizing] = useState(false);
     const startYRef = useRef(0);
@@ -84,8 +85,12 @@ export const LaneComponent: React.FC<Props> = ({ lane, poolId }) => {
 
     return (
         <div
-            className={`lane ${isSelected ? 'is-selected' : ''}`}
-            style={{ height: lane.height }}
+            className={`lane lane-${poolOrientation} ${isSelected ? 'is-selected' : ''}`}
+            style={
+                poolOrientation === 'horizontal'
+                    ? { height: lane.height }
+                    : { width: lane.height } // For vertical pools, height becomes width
+            }
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onMouseDown={handleMouseDown}

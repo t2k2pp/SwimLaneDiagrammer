@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { DiagramState, Pool, Lane, Shape, Position, ShapeType, ID, Connection } from './types';
 
 interface DiagramActions {
-    addPool: (position: Position) => void;
+    addPool: (position: Position, orientation?: 'horizontal' | 'vertical') => void;
     deletePool: (poolId: ID) => void;
     addLane: (poolId: ID) => void;
     deleteLane: (poolId: ID, laneId: ID) => void;
@@ -21,6 +21,7 @@ interface DiagramActions {
     addConnection: (sourceId: ID, targetId: ID) => void;
     setActiveTool: (tool: 'select' | 'connection') => void;
     setConnectionSource: (sourceId: ID | null) => void;
+    setPoolPlacementMode: (mode: 'horizontal' | 'vertical' | null) => void;
     updateLane: (poolId: ID, laneId: ID, updates: Partial<Lane>) => void;
     copyShape: () => void;
     pasteShape: () => void;
@@ -47,13 +48,15 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     selectedIds: [],
     activeTool: 'select',
     connectionSourceId: null,
+    poolPlacementMode: null,
     clipboard: null,
     currentProjectName: null,
     history: [],
     historyIndex: -1,
 
-    setActiveTool: (tool) => set({ activeTool: tool, connectionSourceId: null, selectedIds: [] }),
+    setActiveTool: (tool) => set({ activeTool: tool, connectionSourceId: null, selectedIds: [], poolPlacementMode: null }),
     setConnectionSource: (sourceId) => set({ connectionSourceId: sourceId }),
+    setPoolPlacementMode: (mode) => set({ poolPlacementMode: mode, activeTool: 'select' }),
 
     addConnection: (sourceId, targetId) => {
         const state = get();
@@ -169,7 +172,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
         get().addHistorySnapshot();
     },
 
-    addPool: (position) => {
+    addPool: (position, orientation = 'horizontal') => {
         const poolId = uuidv4();
         const laneId = uuidv4();
         const newLane: Lane = {
@@ -180,12 +183,13 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
         };
         const newPool: Pool = {
             id: poolId,
-            title: 'New Pool',
+            title: orientation === 'horizontal' ? 'Horizontal Pool' : 'Vertical Pool',
             position: { x: snap(position.x), y: snap(position.y) },
             width: 1000,
+            orientation,
             lanes: [newLane],
         };
-        set((state) => ({ pools: [...state.pools, newPool] }));
+        set((state) => ({ pools: [...state.pools, newPool], poolPlacementMode: null }));
         get().addHistorySnapshot();
     },
 
@@ -401,7 +405,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     clearSelection: () => set({ selectedIds: [] }),
 
     clearDiagram: () => {
-        set({ pools: [], shapes: {}, connections: [], selectedIds: [], history: [], historyIndex: -1 });
+        set({ pools: [], shapes: {}, connections: [], selectedIds: [], poolPlacementMode: null, history: [], historyIndex: -1 });
     },
 
     loadDiagram: (newState) => set({
@@ -441,6 +445,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
             selectedIds: state.selectedIds,
             activeTool: state.activeTool,
             connectionSourceId: state.connectionSourceId,
+            poolPlacementMode: state.poolPlacementMode,
             clipboard: state.clipboard,
             currentProjectName: state.currentProjectName,
             history: [],
