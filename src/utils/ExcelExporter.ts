@@ -129,16 +129,26 @@ export const exportToExcelCells = async () => {
                     );
                 }
 
-                // Determine color based on type
+                // Determine color based on type or custom color
                 let fillColor = 'FF646CFF'; // Default blue
-                if (shape.type === 'start') fillColor = 'FF4CAF50';
-                if (shape.type === 'end') fillColor = 'FFF44336';
-                if (shape.type === 'diamond') fillColor = 'FFFFEB3B';
+                if (shape.color) {
+                    // Remove # if present and prepend FF for alpha
+                    fillColor = 'FF' + shape.color.replace('#', '');
+                } else {
+                    if (shape.type === 'start') fillColor = 'FF4CAF50';
+                    if (shape.type === 'end') fillColor = 'FFF44336';
+                    if (shape.type === 'diamond') fillColor = 'FFFFEB3B';
+                }
+
+                // Determine text color
+                let fontColor = 'FFFFFFFF'; // Default white
+                if (shape.textColor === 'black') fontColor = 'FF000000';
+                if (shape.textColor === 'white') fontColor = 'FFFFFFFF';
 
                 // Shape cell styling
                 const shapeCell = worksheet.getCell(shapeY, shapeX);
                 shapeCell.value = shape.label;
-                shapeCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 9 };
+                shapeCell.font = { bold: true, color: { argb: fontColor }, size: 9 };
                 shapeCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
                 shapeCell.fill = {
                     type: 'pattern',
@@ -156,6 +166,47 @@ export const exportToExcelCells = async () => {
             currentY += laneHeight;
         });
     });
+
+    // Draw TextBoxes
+    if (state.textBoxes && state.textBoxes.length > 0) {
+        state.textBoxes.forEach(textBox => {
+            const boxX = pixelToCol(textBox.position.x);
+            const boxY = pixelToRow(textBox.position.y);
+            const boxWidth = pixelToCol(textBox.size.width);
+            const boxHeight = pixelToRow(textBox.size.height);
+
+            if (boxWidth > 0 && boxHeight > 0) {
+                // Check if merge is possible (simple check, might overlap with pools but ExcelJS handles it or throws)
+                // For safety, we try-catch the merge or just set the top-left cell
+                try {
+                    worksheet.mergeCells(
+                        boxY,
+                        boxX,
+                        boxY + boxHeight - 1,
+                        boxX + boxWidth - 1
+                    );
+                } catch (e) {
+                    console.warn('Could not merge cells for TextBox', e);
+                }
+            }
+
+            const boxCell = worksheet.getCell(boxY, boxX);
+            boxCell.value = textBox.content; // Raw markdown content
+            boxCell.font = { color: { argb: 'FF000000' }, size: 10 };
+            boxCell.alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
+            boxCell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFFFFFFF' } // White background
+            };
+            boxCell.border = {
+                top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+                left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+                bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+                right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
+            };
+        });
+    }
 
     // Save file
     const buffer = await workbook.xlsx.writeBuffer();
