@@ -1,0 +1,371 @@
+{
+    "name": "Large - Employee Onboarding",
+    "lastModified": 1700000000000,
+    "data": {
+        "pools": [
+            {
+                "id": "pool-admin",
+                "title": "Administration",
+                "position": {
+                    "x": 50,
+                    "y": 50
+                },
+                "width": 1200,
+                "orientation": "horizontal",
+                "lanes": [
+                    {
+                        "id": "lane-hr",
+                        "title": "HR",
+                        "height": 160
+                    },
+                    {
+                        "id": "lane-it",
+                        "title": "IT Support",
+                        "height": 160
+                    },
+                    {
+                        "id": "lane-ga",
+                        "title": "General Affairs",
+                        "height": 160
+                    }
+                ]
+            },
+            {
+                "id": "pool-dept",
+                "title": "Department",
+                "position": {
+                    "x": 50,
+                    "y": 600
+                },
+                "width": 1200,
+                "orientation": "horizontal",
+                "lanes": [
+                    {
+                        "id": "lane-mgr",
+                        "title": "Manager",
+                        "height": 160
+                    },
+                    {
+                        "id": "lane-emp",
+                        "title": "New Employee",
+                        "height": 160
+                    }
+                ]
+            }
+        ],
+        "shapes": [
+            {
+                "id": "offer-accepted",
+                "type": "start",
+                "position": {
+                    "x": 50,
+                    "y": 60
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "Offer Accepted",
+                "parentId": "lane-hr"
+            },
+            {
+                "id": "create-profile",
+                "type": "rect",
+                "position": {
+                    "x": 150,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Create Employee Profile",
+                "parentId": "lane-hr"
+            },
+            {
+                "id": "send-welcome",
+                "type": "document",
+                "position": {
+                    "x": 300,
+                    "y": 50
+                },
+                "size": {
+                    "width": 100,
+                    "height": 70
+                },
+                "label": "Welcome Email",
+                "parentId": "lane-hr",
+                "color": "#b3e5fc"
+            },
+            {
+                "id": "prep-laptop",
+                "type": "manual-input",
+                "position": {
+                    "x": 450,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Prepare Laptop",
+                "parentId": "lane-it"
+            },
+            {
+                "id": "create-accounts",
+                "type": "database",
+                "position": {
+                    "x": 600,
+                    "y": 50
+                },
+                "size": {
+                    "width": 100,
+                    "height": 60
+                },
+                "label": "Create Accounts",
+                "parentId": "lane-it"
+            },
+            {
+                "id": "setup-access",
+                "type": "rect",
+                "position": {
+                    "x": 750,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Setup Access Rights",
+                "parentId": "lane-it"
+            },
+            {
+                "id": "issue-badge",
+                "type": "rect",
+                "position": {
+                    "x": 600,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Issue ID Badge",
+                "parentId": "lane-ga"
+            },
+            {
+                "id": "desk-setup",
+                "type": "rect",
+                "position": {
+                    "x": 750,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Setup Desk",
+                "parentId": "lane-ga"
+            },
+            {
+                "id": "assign-mentor",
+                "type": "rect",
+                "position": {
+                    "x": 300,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Assign Mentor",
+                "parentId": "lane-mgr"
+            },
+            {
+                "id": "first-day-meeting",
+                "type": "rect",
+                "position": {
+                    "x": 900,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "First Day Meeting",
+                "parentId": "lane-mgr",
+                "color": "#ffe0b2"
+            },
+            {
+                "id": "set-goals",
+                "type": "rect",
+                "position": {
+                    "x": 1050,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Set Initial Goals",
+                "parentId": "lane-mgr"
+            },
+            {
+                "id": "submit-docs",
+                "type": "document",
+                "position": {
+                    "x": 300,
+                    "y": 50
+                },
+                "size": {
+                    "width": 100,
+                    "height": 70
+                },
+                "label": "Submit Documents",
+                "parentId": "lane-emp"
+            },
+            {
+                "id": "receive-assets",
+                "type": "rect",
+                "position": {
+                    "x": 800,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Receive Assets",
+                "parentId": "lane-emp"
+            },
+            {
+                "id": "orientation",
+                "type": "rect",
+                "position": {
+                    "x": 950,
+                    "y": 50
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Orientation",
+                "parentId": "lane-emp"
+            },
+            {
+                "id": "start-work",
+                "type": "end",
+                "position": {
+                    "x": 1100,
+                    "y": 60
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "Start Work",
+                "parentId": "lane-emp"
+            },
+            {
+                "id": "verify-docs",
+                "type": "diamond",
+                "position": {
+                    "x": 450,
+                    "y": 40
+                },
+                "size": {
+                    "width": 80,
+                    "height": 80
+                },
+                "label": "Docs OK?",
+                "parentId": "lane-hr"
+            }
+        ],
+        "groups": {
+            "g-it": {
+                "id": "g-it",
+                "shapeIds": [
+                    "prep-laptop",
+                    "create-accounts",
+                    "setup-access"
+                ]
+            }
+        },
+        "connections": [
+            {
+                "id": "c1",
+                "sourceShapeId": "offer-accepted",
+                "targetShapeId": "create-profile"
+            },
+            {
+                "id": "c2",
+                "sourceShapeId": "create-profile",
+                "targetShapeId": "send-welcome"
+            },
+            {
+                "id": "c3",
+                "sourceShapeId": "create-profile",
+                "targetShapeId": "assign-mentor"
+            },
+            {
+                "id": "c4",
+                "sourceShapeId": "send-welcome",
+                "targetShapeId": "submit-docs"
+            },
+            {
+                "id": "c5",
+                "sourceShapeId": "submit-docs",
+                "targetShapeId": "verify-docs"
+            },
+            {
+                "id": "c6",
+                "sourceShapeId": "verify-docs",
+                "targetShapeId": "prep-laptop"
+            },
+            {
+                "id": "c7",
+                "sourceShapeId": "prep-laptop",
+                "targetShapeId": "create-accounts"
+            },
+            {
+                "id": "c8",
+                "sourceShapeId": "create-accounts",
+                "targetShapeId": "issue-badge"
+            },
+            {
+                "id": "c9",
+                "sourceShapeId": "issue-badge",
+                "targetShapeId": "receive-assets"
+            },
+            {
+                "id": "c10",
+                "sourceShapeId": "receive-assets",
+                "targetShapeId": "first-day-meeting"
+            },
+            {
+                "id": "c11",
+                "sourceShapeId": "first-day-meeting",
+                "targetShapeId": "orientation"
+            },
+            {
+                "id": "c12",
+                "sourceShapeId": "orientation",
+                "targetShapeId": "start-work"
+            }
+        ],
+        "textBoxes": [
+            {
+                "id": "tb-large-1",
+                "position": {
+                    "x": 50,
+                    "y": 1000
+                },
+                "size": {
+                    "width": 500,
+                    "height": 200
+                },
+                "content": "# Employee Onboarding Process\n\nThis diagram illustrates the complex workflow of onboarding a new employee, involving multiple departments.\n\n### Key Departments\n- **HR**: Documentation and profile creation\n- **IT**: Hardware and software access\n- **General Affairs**: Physical access and desk setup\n- **Department**: Mentorship and goal setting"
+            }
+        ]
+    }
+}

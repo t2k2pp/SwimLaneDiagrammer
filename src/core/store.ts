@@ -471,6 +471,10 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
         pools: newState.pools,
         shapes: newState.shapes,
         connections: newState.connections || [],
+        groups: newState.groups || {},
+        textBoxes: newState.textBoxes || [],
+        theme: newState.theme || 'dark',
+        currentProjectName: newState.currentProjectName || null,
         selectedIds: [],
         history: [],
         historyIndex: -1

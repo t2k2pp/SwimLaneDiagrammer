@@ -1,0 +1,247 @@
+{
+    "name": "Medium - E-commerce Order",
+    "lastModified": 1700000000000,
+    "data": {
+        "pools": [
+            {
+                "id": "pool-order",
+                "title": "Order Processing System",
+                "position": {
+                    "x": 50,
+                    "y": 50
+                },
+                "width": 1000,
+                "orientation": "horizontal",
+                "lanes": [
+                    {
+                        "id": "lane-cust",
+                        "title": "Customer",
+                        "height": 140
+                    },
+                    {
+                        "id": "lane-store",
+                        "title": "Web Store",
+                        "height": 140
+                    },
+                    {
+                        "id": "lane-pay",
+                        "title": "Payment Gateway",
+                        "height": 140
+                    },
+                    {
+                        "id": "lane-wh",
+                        "title": "Warehouse",
+                        "height": 140
+                    }
+                ]
+            }
+        ],
+        "shapes": [
+            {
+                "id": "start",
+                "type": "start",
+                "position": {
+                    "x": 50,
+                    "y": 50
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "Start",
+                "parentId": "lane-cust"
+            },
+            {
+                "id": "place-order",
+                "type": "rect",
+                "position": {
+                    "x": 150,
+                    "y": 40
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Place Order",
+                "parentId": "lane-cust"
+            },
+            {
+                "id": "process-order",
+                "type": "rect",
+                "position": {
+                    "x": 150,
+                    "y": 40
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Process Order",
+                "parentId": "lane-store"
+            },
+            {
+                "id": "check-stock",
+                "type": "diamond",
+                "position": {
+                    "x": 170,
+                    "y": 30
+                },
+                "size": {
+                    "width": 80,
+                    "height": 80
+                },
+                "label": "In Stock?",
+                "parentId": "lane-wh"
+            },
+            {
+                "id": "auth-payment",
+                "type": "rect",
+                "position": {
+                    "x": 350,
+                    "y": 40
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Authorize Payment",
+                "parentId": "lane-pay",
+                "color": "#fff9c4"
+            },
+            {
+                "id": "pack-item",
+                "type": "manual-input",
+                "position": {
+                    "x": 550,
+                    "y": 40
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Pack Item",
+                "parentId": "lane-wh"
+            },
+            {
+                "id": "ship-item",
+                "type": "rect",
+                "position": {
+                    "x": 750,
+                    "y": 40
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Ship Item",
+                "parentId": "lane-wh"
+            },
+            {
+                "id": "update-status",
+                "type": "database",
+                "position": {
+                    "x": 750,
+                    "y": 40
+                },
+                "size": {
+                    "width": 100,
+                    "height": 60
+                },
+                "label": "Update DB",
+                "parentId": "lane-store",
+                "color": "#e1bee7"
+            },
+            {
+                "id": "receive-email",
+                "type": "document",
+                "position": {
+                    "x": 750,
+                    "y": 40
+                },
+                "size": {
+                    "width": 100,
+                    "height": 70
+                },
+                "label": "Email Confirmation",
+                "parentId": "lane-cust"
+            }
+        ],
+        "groups": {
+            "g1": {
+                "id": "g1",
+                "shapeIds": [
+                    "pack-item",
+                    "ship-item"
+                ]
+            }
+        },
+        "connections": [
+            {
+                "id": "c1",
+                "sourceShapeId": "start",
+                "targetShapeId": "place-order"
+            },
+            {
+                "id": "c2",
+                "sourceShapeId": "place-order",
+                "targetShapeId": "process-order"
+            },
+            {
+                "id": "c3",
+                "sourceShapeId": "process-order",
+                "targetShapeId": "check-stock"
+            },
+            {
+                "id": "c4",
+                "sourceShapeId": "check-stock",
+                "targetShapeId": "auth-payment"
+            },
+            {
+                "id": "c5",
+                "sourceShapeId": "auth-payment",
+                "targetShapeId": "pack-item"
+            },
+            {
+                "id": "c6",
+                "sourceShapeId": "pack-item",
+                "targetShapeId": "ship-item"
+            },
+            {
+                "id": "c7",
+                "sourceShapeId": "ship-item",
+                "targetShapeId": "update-status"
+            },
+            {
+                "id": "c8",
+                "sourceShapeId": "update-status",
+                "targetShapeId": "receive-email"
+            }
+        ],
+        "textBoxes": [
+            {
+                "id": "tb-1",
+                "position": {
+                    "x": 50,
+                    "y": 650
+                },
+                "size": {
+                    "width": 300,
+                    "height": 150
+                },
+                "content": "### Order Processing\n\nStandard flow for e-commerce orders.\n\n1. Customer places order\n2. Stock check\n3. Payment authorization\n4. Shipping"
+            },
+            {
+                "id": "tb-2",
+                "position": {
+                    "x": 400,
+                    "y": 650
+                },
+                "size": {
+                    "width": 300,
+                    "height": 100
+                },
+                "content": "**Note:**\nPayment gateway is an external service."
+            }
+        ]
+    }
+}

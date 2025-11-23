@@ -1,0 +1,222 @@
+{
+    "name": "Small - Login Flow",
+    "lastModified": 1700000000000,
+    "data": {
+        "pools": [
+            {
+                "id": "pool-auth",
+                "title": "Authentication System",
+                "position": {
+                    "x": 50,
+                    "y": 50
+                },
+                "width": 800,
+                "orientation": "horizontal",
+                "lanes": [
+                    {
+                        "id": "lane-user",
+                        "title": "User",
+                        "height": 150
+                    },
+                    {
+                        "id": "lane-front",
+                        "title": "Frontend",
+                        "height": 150
+                    },
+                    {
+                        "id": "lane-back",
+                        "title": "Backend",
+                        "height": 150
+                    }
+                ]
+            }
+        ],
+        "shapes": [
+            {
+                "id": "start",
+                "type": "start",
+                "position": {
+                    "x": 50,
+                    "y": 55
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "Start",
+                "parentId": "lane-user"
+            },
+            {
+                "id": "input-creds",
+                "type": "manual-input",
+                "position": {
+                    "x": 150,
+                    "y": 45
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Input Credentials",
+                "parentId": "lane-user"
+            },
+            {
+                "id": "send-req",
+                "type": "rect",
+                "position": {
+                    "x": 150,
+                    "y": 45
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Send Login Request",
+                "parentId": "lane-front"
+            },
+            {
+                "id": "validate",
+                "type": "diamond",
+                "position": {
+                    "x": 150,
+                    "y": 35
+                },
+                "size": {
+                    "width": 80,
+                    "height": 80
+                },
+                "label": "Valid Format?",
+                "parentId": "lane-back"
+            },
+            {
+                "id": "check-db",
+                "type": "database",
+                "position": {
+                    "x": 350,
+                    "y": 45
+                },
+                "size": {
+                    "width": 100,
+                    "height": 60
+                },
+                "label": "Check User DB",
+                "parentId": "lane-back",
+                "color": "#bbdefb"
+            },
+            {
+                "id": "show-error",
+                "type": "rect",
+                "position": {
+                    "x": 350,
+                    "y": 45
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Show Error",
+                "parentId": "lane-front",
+                "color": "#ffcdd2"
+            },
+            {
+                "id": "redirect",
+                "type": "rect",
+                "position": {
+                    "x": 550,
+                    "y": 45
+                },
+                "size": {
+                    "width": 120,
+                    "height": 60
+                },
+                "label": "Redirect Dashboard",
+                "parentId": "lane-front",
+                "color": "#c8e6c9"
+            },
+            {
+                "id": "view-error",
+                "type": "end",
+                "position": {
+                    "x": 390,
+                    "y": 55
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "Error",
+                "parentId": "lane-user"
+            },
+            {
+                "id": "view-dashboard",
+                "type": "end",
+                "position": {
+                    "x": 590,
+                    "y": 55
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "Success",
+                "parentId": "lane-user"
+            }
+        ],
+        "connections": [
+            {
+                "id": "c1",
+                "sourceShapeId": "start",
+                "targetShapeId": "input-creds"
+            },
+            {
+                "id": "c2",
+                "sourceShapeId": "input-creds",
+                "targetShapeId": "send-req"
+            },
+            {
+                "id": "c3",
+                "sourceShapeId": "send-req",
+                "targetShapeId": "validate"
+            },
+            {
+                "id": "c4",
+                "sourceShapeId": "validate",
+                "targetShapeId": "check-db"
+            },
+            {
+                "id": "c5",
+                "sourceShapeId": "check-db",
+                "targetShapeId": "redirect"
+            },
+            {
+                "id": "c6",
+                "sourceShapeId": "check-db",
+                "targetShapeId": "show-error"
+            },
+            {
+                "id": "c7",
+                "sourceShapeId": "show-error",
+                "targetShapeId": "view-error"
+            },
+            {
+                "id": "c8",
+                "sourceShapeId": "redirect",
+                "targetShapeId": "view-dashboard"
+            }
+        ],
+        "textBoxes": [
+            {
+                "id": "tb-1",
+                "position": {
+                    "x": 50,
+                    "y": 550
+                },
+                "size": {
+                    "width": 400,
+                    "height": 150
+                },
+                "content": "# Login Flow Sample\n\nThis is a small example of a user authentication flow.\n\n- **Blue**: Database operations\n- **Red**: Error handling\n- **Green**: Success path"
+            }
+        ]
+    }
+}

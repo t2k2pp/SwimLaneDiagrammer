@@ -3,6 +3,7 @@ import { X, Plus, Trash2, FolderOpen } from 'lucide-react';
 import { useDiagramStore } from '../core/store';
 import { listProjects, deleteProject, deleteAllProjects, type ProjectData } from '../core/db';
 import { ConfirmDialog } from './ConfirmDialog';
+import { normalizeProjectData } from '../utils/importUtils';
 import './ProjectManager.css';
 
 interface ProjectManagerProps {
@@ -67,21 +68,21 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
     const handleLoadProject = async (projectData: ProjectData) => {
         const doLoad = () => {
             setProjectName(projectData.name);
+
+            // Normalize data to handle simplified formats and ensure consistency
+            const normalizedData = normalizeProjectData(projectData.data);
+
             loadDiagram({
-                ...projectData.data,
-                groups: projectData.data.groups || {},
-                textBoxes: (projectData.data as any).textBoxes || [],
-                selectedIds: [],
-                activeTool: 'select' as const,
+                ...normalizedData,
+                // Ensure required fields for DiagramState are present (though loadDiagram handles most)
+                activeTool: 'select',
                 connectionSourceId: null,
                 poolPlacementMode: null,
                 propertiesPanelVisible: true,
                 clipboard: null,
                 currentProjectName: projectData.name,
-                theme: 'dark',
-                history: [],
-                historyIndex: -1
-            });
+            } as any); // Cast to any because normalize returns Partial<DiagramState>
+
             onClose();
         };
 
