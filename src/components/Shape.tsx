@@ -9,7 +9,11 @@ interface Props {
 
 export const ShapeComponent: React.FC<Props> = ({ shape }) => {
     const { selectItem, selectedIds, updateShapePosition, activeTool, connectionSourceId, setConnectionSource, addConnection, addHistorySnapshot } = useDiagramStore();
-    const isSelected = selectedIds.includes(shape.id);
+
+    // Check if shape is directly selected OR if its group is selected
+    const isGroupSelected = shape.groupId && selectedIds.includes(shape.groupId);
+    const isSelected = selectedIds.includes(shape.id) || isGroupSelected;
+
     const isConnectionSource = connectionSourceId === shape.id;
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -27,15 +31,19 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
             return;
         }
 
+        // Determine what ID to select (shape ID or group ID)
+        const idToSelect = shape.groupId || shape.id;
+        const isTargetSelected = selectedIds.includes(idToSelect);
+
         // If shift key is pressed, toggle selection
         if (e.shiftKey) {
-            selectItem(shape.id, true);
+            selectItem(idToSelect, true);
         }
-        // If not shift key, and shape is NOT selected, select it (clearing others)
-        else if (!isSelected) {
-            selectItem(shape.id, false);
+        // If not shift key, and target is NOT selected, select it (clearing others)
+        else if (!isTargetSelected) {
+            selectItem(idToSelect, false);
         }
-        // If shape IS selected and no shift key, do nothing to selection
+        // If target IS selected and no shift key, do nothing to selection
         // This preserves multi-selection for dragging
 
         setIsDragging(true);
@@ -84,7 +92,8 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
                 top: shape.position.y,
                 width: `${shape.size.width}px`,
                 height: `${shape.size.height}px`,
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                ...(shape.color ? { backgroundColor: shape.color } : {})
             }}
         >
             <span className="shape-label">{shape.label}</span>

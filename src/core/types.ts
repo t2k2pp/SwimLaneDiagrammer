@@ -10,7 +10,7 @@ export interface Size {
     height: number;
 }
 
-export type ShapeType = 'rect' | 'circle' | 'diamond' | 'start' | 'end';
+export type ShapeType = 'rect' | 'circle' | 'diamond' | 'start' | 'end' | 'document' | 'database' | 'manual-input' | 'delay';
 
 export interface Shape {
     id: ID;
@@ -18,7 +18,14 @@ export interface Shape {
     position: Position; // Relative to the lane
     size: Size;
     label?: string;
+    color?: string; // Custom color (optional)
     parentId: ID; // ID of the Lane it belongs to
+    groupId?: ID; // ID of the Group it belongs to
+}
+
+export interface Group {
+    id: ID;
+    shapeIds: ID[];
 }
 
 export interface Lane {
@@ -46,6 +53,7 @@ export interface Connection {
 export interface DiagramState {
     pools: Pool[];
     shapes: Record<ID, Shape>;
+    groups: Record<ID, Group>;
     connections: Connection[];
     selectedIds: ID[];
     activeTool: 'select' | 'connection';
@@ -56,4 +64,5 @@ export interface DiagramState {
     currentProjectName: string | null;
     history: DiagramState[];
     historyIndex: number;
+    theme: 'light' | 'dark';
 }

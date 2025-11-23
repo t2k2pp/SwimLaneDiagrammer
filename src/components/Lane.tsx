@@ -36,7 +36,7 @@ export const LaneComponent: React.FC<Props> = ({ lane, poolId, poolOrientation }
                 y -= 40; // Subtract header height
             }
 
-            addShape(lane.id, type as any, { x, y });
+            addShape(lane.id, type, { x, y });
         }
     };
 

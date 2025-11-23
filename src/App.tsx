@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Canvas } from './components/Canvas';
 import { Toolbar } from './components/Toolbar';
 import { Sidebar } from './components/Sidebar';
@@ -7,7 +8,11 @@ import { useDiagramStore } from './core/store';
 import './App.css';
 
 function App() {
-  const { propertiesPanelVisible } = useDiagramStore();
+  const { propertiesPanelVisible, theme } = useDiagramStore();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   return (
     <div className="app">

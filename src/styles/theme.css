@@ -1,9 +1,9 @@
 :root {
-  /* Colors */
+  /* Dark theme*/
   --color-bg-primary: hsl(220, 15%, 10%);
   --color-bg-secondary: hsl(220, 15%, 16%);
   --color-bg-tertiary: hsl(220, 15%, 22%);
-  
+
   --color-text-primary: hsl(220, 10%, 95%);
   --color-text-secondary: hsl(220, 10%, 70%);
   --color-text-muted: hsl(220, 10%, 50%);
@@ -20,6 +20,8 @@
   --lane-border: hsl(220, 15%, 30%);
   --pool-header-bg: hsl(220, 15%, 20%);
 
+  --color-primary: #646cff;
+
   /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -33,12 +35,31 @@
   --radius-lg: 12px;
 }
 
+/* Light theme */
+[data-theme="light"] {
+  --color-bg-primary: hsl(0, 0%, 98%);
+  --color-bg-secondary: hsl(0, 0%, 95%);
+  --color-bg-tertiary: hsl(0, 0%, 90%);
+
+  --color-text-primary: hsl(220, 10%, 10%);
+  --color-text-secondary: hsl(220, 10%, 40%);
+  --color-text-muted: hsl(220, 10%, 60%);
+
+  --color-border: hsl(220, 15%, 85%);
+  --color-border-hover: hsl(220, 15%, 75%);
+
+  --lane-bg: hsl(0, 0%, 100%);
+  --lane-border: hsl(220, 15%, 80%);
+  --pool-header-bg: hsl(0, 0%, 92%);
+}
+
 body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   margin: 0;
-  overflow: hidden; /* App-like feel */
+  overflow: hidden;
+  /* App-like feel */
   width: 100vw;
   height: 100vh;
 }

@@ -159,6 +159,55 @@ export const PropertiesPanel: React.FC = () => {
                             <label>タイプ</label>
                             <div className="type-label">{selectedShape.type}</div>
                         </div>
+                        <div className="property-group">
+                            <label>幅 (px)</label>
+                            <input
+                                type="number"
+                                value={selectedShape.size.width}
+                                onChange={(e) => {
+                                    const { updateShape } = useDiagramStore.getState();
+                                    updateShape(selectedShape.id, {
+                                        size: { ...selectedShape.size, width: parseInt(e.target.value) || 80 }
+                                    });
+                                }}
+                                min={40}
+                                step={10}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>高さ (px)</label>
+                            <input
+                                type="number"
+                                value={selectedShape.size.height}
+                                onChange={(e) => {
+                                    const { updateShape } = useDiagramStore.getState();
+                                    updateShape(selectedShape.id, {
+                                        size: { ...selectedShape.size, height: parseInt(e.target.value) || 60 }
+                                    });
+                                }}
+                                min={30}
+                                step={10}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>色</label>
+                            <div className="color-picker">
+                                {['#64b5f6', '#81c784', '#ffb74d', '#e57373', '#ba68c8', '#4dd0e1', '#aed581', '#9575cd', ''].map((color) => (
+                                    <button
+                                        key={color || 'default'}
+                                        className={`color-btn ${selectedShape.color === color || (!selectedShape.color && !color) ? 'active' : ''}`}
+                                        style={{ backgroundColor: color || 'var(--color-bg-secondary)' }}
+                                        onClick={() => {
+                                            const { updateShape } = useDiagramStore.getState();
+                                            updateShape(selectedShape.id, { color: color || undefined });
+                                        }}
+                                        title={color || 'デフォルト'}
+                                    >
+                                        {!color && '×'}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                         <div className="property-actions">
                             <button
                                 className="delete-btn"

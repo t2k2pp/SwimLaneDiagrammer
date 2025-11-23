@@ -69,6 +69,7 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
             setProjectName(projectData.name);
             loadDiagram({
                 ...projectData.data,
+                groups: projectData.data.groups || {},
                 selectedIds: [],
                 activeTool: 'select' as const,
                 connectionSourceId: null,
@@ -76,6 +77,7 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
                 propertiesPanelVisible: true,
                 clipboard: null,
                 currentProjectName: projectData.name,
+                theme: 'dark',
                 history: [],
                 historyIndex: -1
             });

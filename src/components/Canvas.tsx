@@ -6,7 +6,7 @@ import './Canvas.css';
 import type { Position } from '../core/types';
 
 export const Canvas: React.FC = () => {
-    const { pools, shapes, connections, selectedIds, addPool, clearSelection, copyShape, pasteShape, undo, redo, activeTool, poolPlacementMode, selectMultipleShapes, deleteShape, deletePool, deleteConnection } = useDiagramStore();
+    const { pools, shapes, groups, connections, selectedIds, addPool, clearSelection, copyShape, pasteShape, undo, redo, activeTool, poolPlacementMode, selectMultipleShapes, deleteShape, deletePool, deleteConnection } = useDiagramStore();
     const [selectionBox, setSelectionBox] = useState<{ start: Position; current: Position } | null>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -97,16 +97,20 @@ export const Canvas: React.FC = () => {
                     for (const pool of pools) {
                         for (const lane of pool.lanes) {
                             if (lane.shapeIds.includes(shape.id)) {
-                                poolX = pool.position.x;
-                                poolY = pool.position.y;
+                                poolX = pool.position.x + 2; // Pool border
+                                poolY = pool.position.y + 2; // Pool border
                                 // Calculate lane Y offset
-                                let currentY = 50; // Pool header height
+                                let currentY = 42; // Pool header (40px) + border (2px)
                                 for (const l of pool.lanes) {
                                     if (l.id === lane.id) {
                                         laneY = currentY;
                                         break;
                                     }
                                     currentY += l.height;
+                                }
+                                // Add lane header offset for horizontal pools
+                                if (pool.orientation === 'horizontal') {
+                                    poolX += 41; // Lane header (40px) + border (1px)
                                 }
                                 break;
                             }
@@ -119,21 +123,11 @@ export const Canvas: React.FC = () => {
                     const shapeCenterX = absoluteX + shape.size.width / 2;
                     const shapeCenterY = absoluteY + shape.size.height / 2;
 
-                    console.log(`Shape ${shape.id}:`, {
-                        shapePos: shape.position,
-                        poolOffset: { poolX, poolY, laneY },
-                        absolute: { absoluteX, absoluteY },
-                        center: { shapeCenterX, shapeCenterY }
-                    });
-
                     if (shapeCenterX >= minX && shapeCenterX <= maxX &&
                         shapeCenterY >= minY && shapeCenterY <= maxY) {
                         selectedShapeIds.push(shape.id);
                     }
                 });
-
-                console.log('Selection box:', { minX, maxX, minY, maxY });
-                console.log('Selected shapes:', selectedShapeIds);
 
                 if (selectedShapeIds.length > 0) {
                     selectMultipleShapes(selectedShapeIds);
@@ -204,6 +198,63 @@ export const Canvas: React.FC = () => {
         }
     };
 
+    // Calculate group bounding boxes
+    const getGroupBoundingBox = (groupId: string) => {
+        const group = groups[groupId];
+        if (!group) return null;
+
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        group.shapeIds.forEach(shapeId => {
+            const shape = shapes[shapeId];
+            if (!shape) return;
+
+            // We need absolute positions to draw the group box on the canvas
+            let poolX = 0, poolY = 0, laneY = 0;
+            for (const pool of pools) {
+                for (const lane of pool.lanes) {
+                    if (lane.shapeIds.includes(shape.id)) {
+                        poolX = pool.position.x + 2; // Pool border
+                        poolY = pool.position.y + 2; // Pool border
+                        let currentY = 42; // Pool header (40px) + border (2px)
+                        for (const l of pool.lanes) {
+                            if (l.id === lane.id) {
+                                laneY = currentY;
+                                break;
+                            }
+                            currentY += l.height;
+                        }
+                        // Add lane header offset for horizontal pools
+                        if (pool.orientation === 'horizontal') {
+                            poolX += 41; // Lane header (40px) + border (1px)
+                        }
+                        break;
+                    }
+                }
+            }
+
+            const absoluteX = poolX + shape.position.x;
+            const absoluteY = poolY + laneY + shape.position.y;
+
+            minX = Math.min(minX, absoluteX);
+            minY = Math.min(minY, absoluteY);
+            maxX = Math.max(maxX, absoluteX + shape.size.width);
+            maxY = Math.max(maxY, absoluteY + shape.size.height);
+        });
+
+        if (minX === Infinity) return null;
+
+        return {
+            x: minX - 10, // Padding
+            y: minY - 10,
+            width: maxX - minX + 20,
+            height: maxY - minY + 20
+        };
+    };
+
     return (
         <div
             ref={canvasRef}
@@ -216,6 +267,34 @@ export const Canvas: React.FC = () => {
                 <PoolComponent key={pool.id} pool={pool} />
             ))}
             <ConnectionLayer />
+
+            {/* Render Group Bounding Boxes */}
+            {Object.keys(groups).map(groupId => {
+                const box = getGroupBoundingBox(groupId);
+                const isSelected = selectedIds.includes(groupId);
+                if (!box) return null;
+
+                // Only show if selected or if a member is selected (optional, but good for feedback)
+                // For now, let's show it if the group itself is selected
+                if (!isSelected) return null;
+
+                return (
+                    <div
+                        key={groupId}
+                        className="group-box selected"
+                        style={{
+                            position: 'absolute',
+                            left: box.x,
+                            top: box.y,
+                            width: box.width,
+                            height: box.height,
+                            border: '2px dashed #2196f3',
+                            pointerEvents: 'none', // Let clicks pass through to shapes
+                            zIndex: 5 // Above pools but below shapes? No, shapes are in pools. This needs to be high.
+                        }}
+                    />
+                );
+            })}
 
             {selectionBox && (
                 <div

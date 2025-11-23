@@ -82,3 +82,28 @@
     background-color: rgba(255, 100, 100, 0.1);
     border-color: #f44336;
 }
+
+.shape-document {
+    border-radius: 4px 4px 0 0;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 95%, 80% 85%, 70% 95%, 60% 85%, 50% 95%, 40% 85%, 30% 95%, 20% 85%, 10% 95%, 0 85%);
+    background-color: rgba(255, 200, 100, 0.1);
+    border-color: #ff9800;
+}
+
+.shape-database {
+    border-radius: 50% / 20%;
+    background-color: rgba(100, 200, 255, 0.1);
+    border-color: #2196f3;
+}
+
+.shape-manual-input {
+    clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 20%);
+    background-color: rgba(200, 100, 255, 0.1);
+    border-color: #9c27b0;
+}
+
+.shape-delay {
+    border-radius: 0 50% 50% 0;
+    background-color: rgba(255, 150, 100, 0.1);
+    border-color: #ff5722;
+}

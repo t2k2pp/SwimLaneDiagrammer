@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import type { DiagramState, Pool, Lane, Shape, Position, ShapeType, ID, Connection } from './types';
+import type { DiagramState, Pool, Lane, Shape, Position, ShapeType, ID, Connection, Group } from './types';
 
 interface DiagramActions {
     addPool: (position: Position, orientation?: 'horizontal' | 'vertical') => void;
@@ -9,7 +9,7 @@ interface DiagramActions {
     deleteConnection: (connectionId: ID) => void;
     addLane: (poolId: ID) => void;
     deleteLane: (poolId: ID, laneId: ID) => void;
-    addShape: (laneId: ID, type: ShapeType, position: Position) => void;
+    addShape: (laneId: ID, type: string, position: Position) => void;
     updatePoolPosition: (poolId: ID, position: Position) => void;
     updatePool: (poolId: ID, updates: Partial<Pool>) => void;
     updateLaneHeight: (poolId: ID, laneId: ID, height: number) => void;
@@ -37,6 +37,11 @@ interface DiagramActions {
     addHistorySnapshot: () => void;
     // Alignment
     alignShapes: (alignment: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => void;
+    // Grouping
+    groupShapes: () => void;
+    ungroupShapes: () => void;
+    // Theme
+    setTheme: (theme: 'light' | 'dark') => void;
 }
 
 const SNAP_SIZE = 20;
@@ -47,6 +52,7 @@ const MAX_HISTORY = 50;
 export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) => ({
     pools: [],
     shapes: {},
+    groups: {},
     connections: [],
     selectedIds: [],
     activeTool: 'select',
@@ -57,6 +63,13 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     currentProjectName: null,
     history: [],
     historyIndex: -1,
+    theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'dark',
+
+    setTheme: (theme) => {
+        set({ theme });
+        localStorage.setItem('theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
+    },
 
     setActiveTool: (tool) => set({ activeTool: tool, connectionSourceId: null, selectedIds: [], poolPlacementMode: null }),
     setConnectionSource: (sourceId) => set({ connectionSourceId: sourceId }),
@@ -384,16 +397,41 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     addShape: (laneId, type, position) => {
         const shapeId = uuidv4();
 
-        let size = { width: 100, height: 60 };
-        if (type === 'diamond') {
+        // Determine size based on type
+        let size = { width: 100, height: 60 }; // default rect
+        let actualType: ShapeType = 'rect';
+
+        if (type === 'rect-wide') {
+            size = { width: 150, height: 60 };
+            actualType = 'rect';
+        } else if (type === 'rect-extra-wide') {
+            size = { width: 200, height: 60 };
+            actualType = 'rect';
+        } else if (type === 'diamond') {
             size = { width: 80, height: 80 };
+            actualType = 'diamond';
         } else if (type === 'circle') {
             size = { width: 80, height: 80 };
+            actualType = 'circle';
+        } else if (type === 'document') {
+            size = { width: 100, height: 80 };
+            actualType = 'document';
+        } else if (type === 'database') {
+            size = { width: 90, height: 90 };
+            actualType = 'database';
+        } else if (type === 'manual-input') {
+            size = { width: 100, height: 60 };
+            actualType = 'manual-input';
+        } else if (type === 'delay') {
+            size = { width: 100, height: 60 };
+            actualType = 'delay';
+        } else if (type === 'start' || type === 'end') {
+            actualType = type;
         }
 
         const newShape: Shape = {
             id: shapeId,
-            type,
+            type: actualType,
             position: { x: snap(position.x), y: snap(position.y) },
             size,
             parentId: laneId,
@@ -416,6 +454,238 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
         set({
             shapes: { ...state.shapes, [shapeId]: newShape },
             pools: newPools,
+        });
+        get().addHistorySnapshot();
+    },
+
+    clearDiagram: () => {
+        set({ pools: [], shapes: {}, connections: [], selectedIds: [], poolPlacementMode: null, history: [], historyIndex: -1 });
+    },
+
+    loadDiagram: (newState) => set({
+        pools: newState.pools,
+        shapes: newState.shapes,
+        connections: newState.connections || [],
+        selectedIds: [],
+        history: [],
+        historyIndex: -1
+    }),
+
+    // Project management
+    setProjectName: (name) => set({ currentProjectName: name }),
+
+    saveCurrentProject: async () => {
+        const state = get();
+        if (!state.currentProjectName) {
+            console.warn('No project name set');
+            return;
+        }
+
+        const { saveProject } = await import('./db');
+        await saveProject(state.currentProjectName, {
+            pools: state.pools,
+            shapes: state.shapes,
+            connections: state.connections
+        });
+    },
+
+    // Undo/Redo
+    addHistorySnapshot: () => {
+        const state = get();
+        const snapshot: DiagramState = {
+            pools: state.pools,
+            shapes: state.shapes,
+            groups: state.groups,
+            connections: state.connections,
+            selectedIds: state.selectedIds,
+            activeTool: state.activeTool,
+            connectionSourceId: state.connectionSourceId,
+            poolPlacementMode: state.poolPlacementMode,
+            propertiesPanelVisible: state.propertiesPanelVisible,
+            clipboard: state.clipboard,
+            currentProjectName: state.currentProjectName,
+            theme: state.theme,
+            history: [],
+            historyIndex: -1
+        };
+
+        const newHistory = state.history.slice(0, state.historyIndex + 1);
+        newHistory.push(snapshot);
+
+        if (newHistory.length > MAX_HISTORY) {
+            newHistory.shift();
+        }
+
+        set({
+            history: newHistory,
+            historyIndex: newHistory.length - 1
+        });
+    },
+
+    undo: () => {
+        const state = get();
+        if (state.historyIndex <= 0) return;
+
+        const newIndex = state.historyIndex - 1;
+        const previousState = state.history[newIndex];
+
+        set({
+            ...previousState,
+            history: state.history,
+            historyIndex: newIndex
+        });
+    },
+
+    redo: () => {
+        const state = get();
+        if (state.historyIndex >= state.history.length - 1) return;
+
+        const newIndex = state.historyIndex + 1;
+        const nextState = state.history[newIndex];
+
+        set({
+            ...nextState,
+            history: state.history,
+            historyIndex: newIndex
+        });
+    },
+
+    // Alignment
+    alignShapes: (alignment) => {
+        const state = get();
+        if (state.selectedIds.length < 2) return;
+
+        const selectedShapes = state.selectedIds
+            .map(id => state.shapes[id])
+            .filter(s => s !== undefined);
+
+        if (selectedShapes.length < 2) return;
+
+        let targetValue: number;
+
+        switch (alignment) {
+            case 'left':
+                targetValue = Math.min(...selectedShapes.map(s => s.position.x));
+                break;
+            case 'center':
+                {
+                    const minX = Math.min(...selectedShapes.map(s => s.position.x));
+                    const maxX = Math.max(...selectedShapes.map(s => s.position.x + s.size.width));
+                    targetValue = minX + (maxX - minX) / 2;
+                }
+                break;
+            case 'right':
+                targetValue = Math.max(...selectedShapes.map(s => s.position.x + s.size.width));
+                break;
+            case 'top':
+                targetValue = Math.min(...selectedShapes.map(s => s.position.y));
+                break;
+            case 'middle':
+                {
+                    const minY = Math.min(...selectedShapes.map(s => s.position.y));
+                    const maxY = Math.max(...selectedShapes.map(s => s.position.y + s.size.height));
+                    targetValue = minY + (maxY - minY) / 2;
+                }
+                break;
+            case 'bottom':
+                targetValue = Math.max(...selectedShapes.map(s => s.position.y + s.size.height));
+                break;
+        }
+
+        const newShapes = { ...state.shapes };
+
+        selectedShapes.forEach(shape => {
+            let newX = shape.position.x;
+            let newY = shape.position.y;
+
+            switch (alignment) {
+                case 'left':
+                    newX = targetValue;
+                    break;
+                case 'center':
+                    newX = targetValue - shape.size.width / 2;
+                    break;
+                case 'right':
+                    newX = targetValue - shape.size.width;
+                    break;
+                case 'top':
+                    newY = targetValue;
+                    break;
+                case 'middle':
+                    newY = targetValue - shape.size.height / 2;
+                    break;
+                case 'bottom':
+                    newY = targetValue - shape.size.height;
+                    break;
+            }
+
+            newShapes[shape.id] = {
+                ...shape,
+                position: { x: newX, y: newY }
+            };
+        });
+
+        set({ shapes: newShapes });
+        get().addHistorySnapshot();
+    },
+
+    groupShapes: () => {
+        const state = get();
+        if (state.selectedIds.length < 2) return;
+
+        const groupId = uuidv4();
+        const newGroup: Group = {
+            id: groupId,
+            shapeIds: [...state.selectedIds]
+        };
+
+        const newShapes = { ...state.shapes };
+        state.selectedIds.forEach(id => {
+            if (newShapes[id]) {
+                newShapes[id] = { ...newShapes[id], groupId };
+            }
+        });
+
+        set({
+            groups: { ...state.groups, [groupId]: newGroup },
+            shapes: newShapes,
+            selectedIds: [groupId] // Select the group
+        });
+        get().addHistorySnapshot();
+    },
+
+    ungroupShapes: () => {
+        const state = get();
+        // Find selected groups
+        // Since selectedIds can contain both shape IDs and Group IDs (though UI should handle this),
+        // we check if any selected ID corresponds to a group.
+        const selectedGroupIds = state.selectedIds.filter(id => state.groups[id]);
+
+        if (selectedGroupIds.length === 0) return;
+
+        const newGroups = { ...state.groups };
+        const newShapes = { ...state.shapes };
+        let newSelectedIds: ID[] = [];
+
+        selectedGroupIds.forEach(groupId => {
+            const group = state.groups[groupId];
+            if (group) {
+                // Remove groupId from shapes
+                group.shapeIds.forEach(shapeId => {
+                    if (newShapes[shapeId]) {
+                        const { groupId: _, ...rest } = newShapes[shapeId];
+                        newShapes[shapeId] = rest as Shape;
+                        newSelectedIds.push(shapeId); // Select individual shapes after ungrouping
+                    }
+                });
+                delete newGroups[groupId];
+            }
+        });
+
+        set({
+            groups: newGroups,
+            shapes: newShapes,
+            selectedIds: newSelectedIds
         });
         get().addHistorySnapshot();
     },
@@ -485,27 +755,56 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
             if (deltaX === 0 && deltaY === 0) return state;
 
             const newShapes = { ...state.shapes };
+            const shapesToMove = new Set<ID>();
 
+            // 1. Always move the dragged shape
+            // (We don't add it to shapesToMove to avoid double application, handled explicitly below)
+
+            // 2. If dragged shape is in a group, move all group members
+            if (shape.groupId && state.groups[shape.groupId]) {
+                state.groups[shape.groupId].shapeIds.forEach(id => {
+                    if (id !== shapeId) shapesToMove.add(id);
+                });
+            }
+
+            // 3. If dragged shape (or its group) is selected, move all other selected items
+            const isDraggedShapeSelected = state.selectedIds.includes(shapeId);
+            const isDraggedGroupSelected = shape.groupId && state.selectedIds.includes(shape.groupId);
+
+            if (isDraggedShapeSelected || isDraggedGroupSelected) {
+                state.selectedIds.forEach(selectedId => {
+                    // If selected ID is a group, add all its members
+                    if (state.groups[selectedId]) {
+                        state.groups[selectedId].shapeIds.forEach(id => {
+                            if (id !== shapeId) shapesToMove.add(id);
+                        });
+                    }
+                    // If selected ID is a shape, add it
+                    else if (state.shapes[selectedId] && selectedId !== shapeId) {
+                        shapesToMove.add(selectedId);
+                    }
+                });
+            }
+
+            // Apply updates
             // Update the dragged shape
             newShapes[shapeId] = {
                 ...shape,
                 position: newPosition
             };
 
-            // Update other selected shapes if the dragged shape is part of the selection
-            if (state.selectedIds.includes(shapeId)) {
-                state.selectedIds.forEach(id => {
-                    if (id !== shapeId && newShapes[id]) {
-                        newShapes[id] = {
-                            ...newShapes[id],
-                            position: {
-                                x: newShapes[id].position.x + deltaX,
-                                y: newShapes[id].position.y + deltaY
-                            }
-                        };
-                    }
-                });
-            }
+            // Update other shapes
+            shapesToMove.forEach(id => {
+                if (newShapes[id]) {
+                    newShapes[id] = {
+                        ...newShapes[id],
+                        position: {
+                            x: newShapes[id].position.x + deltaX,
+                            y: newShapes[id].position.y + deltaY
+                        }
+                    };
+                }
+            });
 
             return { shapes: newShapes };
         });
@@ -531,160 +830,4 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
 
     clearSelection: () => set({ selectedIds: [] }),
 
-    clearDiagram: () => {
-        set({ pools: [], shapes: {}, connections: [], selectedIds: [], poolPlacementMode: null, history: [], historyIndex: -1 });
-    },
-
-    loadDiagram: (newState) => set({
-        pools: newState.pools,
-        shapes: newState.shapes,
-        connections: newState.connections || [],
-        selectedIds: [],
-        history: [],
-        historyIndex: -1
-    }),
-
-    // Project management
-    setProjectName: (name) => set({ currentProjectName: name }),
-
-    saveCurrentProject: async () => {
-        const state = get();
-        if (!state.currentProjectName) {
-            console.warn('No project name set');
-            return;
-        }
-
-        const { saveProject } = await import('./db');
-        await saveProject(state.currentProjectName, {
-            pools: state.pools,
-            shapes: state.shapes,
-            connections: state.connections
-        });
-    },
-
-    // Undo/Redo
-    addHistorySnapshot: () => {
-        const state = get();
-        const snapshot: DiagramState = {
-            pools: state.pools,
-            shapes: state.shapes,
-            connections: state.connections,
-            selectedIds: state.selectedIds,
-            activeTool: state.activeTool,
-            connectionSourceId: state.connectionSourceId,
-            poolPlacementMode: state.poolPlacementMode,
-            propertiesPanelVisible: state.propertiesPanelVisible,
-            clipboard: state.clipboard,
-            currentProjectName: state.currentProjectName,
-            history: [],
-            historyIndex: -1
-        };
-
-        const newHistory = state.history.slice(0, state.historyIndex + 1);
-        newHistory.push(snapshot);
-
-        if (newHistory.length > MAX_HISTORY) {
-            newHistory.shift();
-        }
-
-        set({
-            history: newHistory,
-            historyIndex: newHistory.length - 1
-        });
-    },
-
-    undo: () => {
-        const state = get();
-        if (state.historyIndex <= 0) return;
-
-        const newIndex = state.historyIndex - 1;
-        const previousState = state.history[newIndex];
-
-        set({
-            ...previousState,
-            history: state.history,
-            historyIndex: newIndex
-        });
-    },
-
-    redo: () => {
-        const state = get();
-        if (state.historyIndex >= state.history.length - 1) return;
-
-        const newIndex = state.historyIndex + 1;
-        const nextState = state.history[newIndex];
-
-        set({
-            ...nextState,
-            history: state.history,
-            historyIndex: newIndex
-        });
-    },
-
-    // Alignment
-    alignShapes: (alignment) => {
-        const state = get();
-        const selectedShapes = state.selectedIds
-            .map(id => state.shapes[id])
-            .filter(shape => shape !== undefined);
-
-        if (selectedShapes.length < 2) return; // Need at least 2 shapes to align
-
-        let referenceValue: number;
-
-        // Calculate reference value based on alignment type
-        switch (alignment) {
-            case 'left':
-                referenceValue = Math.min(...selectedShapes.map(s => s.position.x));
-                break;
-            case 'center':
-                const avgCenterX = selectedShapes.reduce((sum, s) => sum + s.position.x + s.size.width / 2, 0) / selectedShapes.length;
-                referenceValue = avgCenterX;
-                break;
-            case 'right':
-                referenceValue = Math.max(...selectedShapes.map(s => s.position.x + s.size.width));
-                break;
-            case 'top':
-                referenceValue = Math.min(...selectedShapes.map(s => s.position.y));
-                break;
-            case 'middle':
-                const avgCenterY = selectedShapes.reduce((sum, s) => sum + s.position.y + s.size.height / 2, 0) / selectedShapes.length;
-                referenceValue = avgCenterY;
-                break;
-            case 'bottom':
-                referenceValue = Math.max(...selectedShapes.map(s => s.position.y + s.size.height));
-                break;
-        }
-
-        const newShapes = { ...state.shapes };
-        selectedShapes.forEach(shape => {
-            let newPosition = { ...shape.position };
-
-            switch (alignment) {
-                case 'left':
-                    newPosition.x = referenceValue;
-                    break;
-                case 'center':
-                    newPosition.x = referenceValue - shape.size.width / 2;
-                    break;
-                case 'right':
-                    newPosition.x = referenceValue - shape.size.width;
-                    break;
-                case 'top':
-                    newPosition.y = referenceValue;
-                    break;
-                case 'middle':
-                    newPosition.y = referenceValue - shape.size.height / 2;
-                    break;
-                case 'bottom':
-                    newPosition.y = referenceValue - shape.size.height;
-                    break;
-            }
-
-            newShapes[shape.id] = { ...shape, position: newPosition };
-        });
-
-        set({ shapes: newShapes });
-        get().addHistorySnapshot();
-    },
 }));

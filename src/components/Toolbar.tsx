@@ -1,15 +1,17 @@
 import React, { useRef, useState } from 'react';
-import { Undo2, Redo2, Save, Upload, Trash2, FolderOpen, PanelRightClose, PanelRight } from 'lucide-react';
+import { Undo2, Redo2, Save, Upload, Trash2, FolderOpen, PanelRightClose, PanelRight, Group, Ungroup, Sun, Moon, AlignStartVertical, AlignCenterVertical, AlignEndVertical, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { useDiagramStore } from '../core/store';
 import { ProjectManager } from './ProjectManager';
 import './Toolbar.css';
 
 export const Toolbar: React.FC = () => {
-    const { pools, shapes, clearDiagram, loadDiagram, undo, redo, historyIndex, history, currentProjectName, propertiesPanelVisible, setPropertiesPanelVisible } = useDiagramStore();
+    const { pools, shapes, clearDiagram, loadDiagram, undo, redo, historyIndex, history, currentProjectName, propertiesPanelVisible, setPropertiesPanelVisible, groupShapes, ungroupShapes, theme, setTheme, selectedIds, alignShapes } = useDiagramStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isProjectManagerOpen, setIsProjectManagerOpen] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
+
+    const canAlign = selectedIds.length >= 2;
 
     const handleSave = () => {
         const data = JSON.stringify({ pools, shapes }, null, 2);
@@ -48,6 +50,34 @@ export const Toolbar: React.FC = () => {
                     <button className="tool-btn" title="Save Diagram" onClick={handleSave}>
                         <Save size={20} />
                     </button>
+                    <button className="tool-btn" title="Group Selected" onClick={groupShapes}>
+                        <Group size={20} />
+                    </button>
+                    <button className="tool-btn" title="Ungroup Selected" onClick={ungroupShapes}>
+                        <Ungroup size={20} />
+                    </button>
+
+                    <div className="toolbar-separator" />
+
+                    <button className="tool-btn" title="Align Left" onClick={() => alignShapes('left')} disabled={!canAlign}>
+                        <AlignStartVertical size={20} />
+                    </button>
+                    <button className="tool-btn" title="Align Center" onClick={() => alignShapes('center')} disabled={!canAlign}>
+                        <AlignCenterVertical size={20} />
+                    </button>
+                    <button className="tool-btn" title="Align Right" onClick={() => alignShapes('right')} disabled={!canAlign}>
+                        <AlignEndVertical size={20} />
+                    </button>
+                    <button className="tool-btn" title="Align Top" onClick={() => alignShapes('top')} disabled={!canAlign}>
+                        <AlignLeft size={20} style={{ transform: 'rotate(90deg)' }} />
+                    </button>
+                    <button className="tool-btn" title="Align Middle" onClick={() => alignShapes('middle')} disabled={!canAlign}>
+                        <AlignCenter size={20} style={{ transform: 'rotate(90deg)' }} />
+                    </button>
+                    <button className="tool-btn" title="Align Bottom" onClick={() => alignShapes('bottom')} disabled={!canAlign}>
+                        <AlignRight size={20} style={{ transform: 'rotate(90deg)' }} />
+                    </button>
+
                     <button className="tool-btn" title="Load Diagram" onClick={() => fileInputRef.current?.click()}>
                         <Upload size={20} />
                     </button>
@@ -86,6 +116,16 @@ export const Toolbar: React.FC = () => {
                         }}
                     >
                         <span style={{ fontSize: '9px', fontWeight: 'bold' }}>XLS-S</span>
+                    </button>
+
+                    <div className="toolbar-separator" />
+
+                    <button
+                        className="tool-btn"
+                        title={theme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
+                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    >
+                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                     </button>
 
                     <input

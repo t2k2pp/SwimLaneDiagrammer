@@ -10,6 +10,7 @@ export interface ProjectData {
     data: {
         pools: any[];
         shapes: any;
+        groups?: any;
         connections: any[];
     };
 }
