@@ -39,55 +39,13 @@ export const Toolbar: React.FC = () => {
         <>
             <div className="toolbar">
                 <div className="toolbar-left">
-                    <button className="tool-btn" title="Undo (Ctrl+Z)" onClick={undo} disabled={historyIndex <= 0}>
-                        <Undo2 size={20} />
-                    </button>
-                    <button className="tool-btn" title="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={historyIndex >= history.length - 1}>
-                        <Redo2 size={20} />
-                    </button>
-
-                    <div className="toolbar-separator" />
-
+                    {/* File Operations & Exports */}
                     <button className="tool-btn" title="Save Diagram" onClick={handleSave}>
                         <Save size={20} />
                     </button>
-                    <button className="tool-btn" title="Group Selected" onClick={groupShapes}>
-                        <Group size={20} />
-                    </button>
-                    <button className="tool-btn" title="Ungroup Selected" onClick={ungroupShapes}>
-                        <Ungroup size={20} />
-                    </button>
-
-                    <div className="toolbar-separator" />
-
-                    <button className="tool-btn" title="Align Left" onClick={() => alignShapes('left')} disabled={!canAlign}>
-                        <AlignStartVertical size={20} />
-                    </button>
-                    <button className="tool-btn" title="Align Center" onClick={() => alignShapes('center')} disabled={!canAlign}>
-                        <AlignCenterVertical size={20} />
-                    </button>
-                    <button className="tool-btn" title="Align Right" onClick={() => alignShapes('right')} disabled={!canAlign}>
-                        <AlignEndVertical size={20} />
-                    </button>
-                    <button className="tool-btn" title="Align Top" onClick={() => alignShapes('top')} disabled={!canAlign}>
-                        <AlignLeft size={20} style={{ transform: 'rotate(90deg)' }} />
-                    </button>
-                    <button className="tool-btn" title="Align Middle" onClick={() => alignShapes('middle')} disabled={!canAlign}>
-                        <AlignCenter size={20} style={{ transform: 'rotate(90deg)' }} />
-                    </button>
-                    <button className="tool-btn" title="Align Bottom" onClick={() => alignShapes('bottom')} disabled={!canAlign}>
-                        <AlignRight size={20} style={{ transform: 'rotate(90deg)' }} />
-                    </button>
-
                     <button className="tool-btn" title="Load Diagram" onClick={() => fileInputRef.current?.click()}>
                         <Upload size={20} />
                     </button>
-                    <button className="tool-btn" title="Clear Diagram" onClick={handleClear}>
-                        <Trash2 size={20} />
-                    </button>
-
-                    <div className="toolbar-separator" />
-
                     <button
                         className="tool-btn"
                         title="Export PDF"
@@ -97,6 +55,16 @@ export const Toolbar: React.FC = () => {
                         }}
                     >
                         <span style={{ fontSize: '10px', fontWeight: 'bold' }}>PDF</span>
+                    </button>
+                    <button
+                        className="tool-btn"
+                        title="Export SVG"
+                        onClick={async () => {
+                            const { exportToSVG } = await import('../utils/SVGExporter');
+                            exportToSVG();
+                        }}
+                    >
+                        <span style={{ fontSize: '10px', fontWeight: 'bold' }}>SVG</span>
                     </button>
                     <button
                         className="tool-btn"
@@ -121,6 +89,49 @@ export const Toolbar: React.FC = () => {
 
                     <div className="toolbar-separator" />
 
+                    {/* Undo / Redo */}
+                    <button className="tool-btn" title="Undo (Ctrl+Z)" onClick={undo} disabled={historyIndex <= 0}>
+                        <Undo2 size={20} />
+                    </button>
+                    <button className="tool-btn" title="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={historyIndex >= history.length - 1}>
+                        <Redo2 size={20} />
+                    </button>
+
+                    <div className="toolbar-separator" />
+
+                    {/* Grouping */}
+                    <button className="tool-btn" title="Group Selected" onClick={groupShapes}>
+                        <Group size={20} />
+                    </button>
+                    <button className="tool-btn" title="Ungroup Selected" onClick={ungroupShapes}>
+                        <Ungroup size={20} />
+                    </button>
+
+                    <div className="toolbar-separator" />
+
+                    {/* Alignment */}
+                    <button className="tool-btn" title="Align Left" onClick={() => alignShapes('left')} disabled={!canAlign}>
+                        <AlignStartVertical size={20} />
+                    </button>
+                    <button className="tool-btn" title="Align Center" onClick={() => alignShapes('center')} disabled={!canAlign}>
+                        <AlignCenterVertical size={20} />
+                    </button>
+                    <button className="tool-btn" title="Align Right" onClick={() => alignShapes('right')} disabled={!canAlign}>
+                        <AlignEndVertical size={20} />
+                    </button>
+                    <button className="tool-btn" title="Align Top" onClick={() => alignShapes('top')} disabled={!canAlign}>
+                        <AlignLeft size={20} style={{ transform: 'rotate(90deg)' }} />
+                    </button>
+                    <button className="tool-btn" title="Align Middle" onClick={() => alignShapes('middle')} disabled={!canAlign}>
+                        <AlignCenter size={20} style={{ transform: 'rotate(90deg)' }} />
+                    </button>
+                    <button className="tool-btn" title="Align Bottom" onClick={() => alignShapes('bottom')} disabled={!canAlign}>
+                        <AlignRight size={20} style={{ transform: 'rotate(90deg)' }} />
+                    </button>
+
+                    <div className="toolbar-separator" />
+
+                    {/* Theme */}
                     <button
                         className="tool-btn"
                         title={theme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
@@ -179,6 +190,10 @@ export const Toolbar: React.FC = () => {
                 </div>
 
                 <div className="toolbar-right">
+                    <button className="tool-btn" title="Clear Diagram" onClick={handleClear} style={{ marginRight: '8px' }}>
+                        <Trash2 size={20} />
+                    </button>
+
                     {currentProjectName && (
                         <div className="current-project-name">
                             {currentProjectName}

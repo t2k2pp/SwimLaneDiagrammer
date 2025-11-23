@@ -18,7 +18,12 @@ export const PropertiesPanel: React.FC = () => {
         propertiesPanelVisible,
         textBoxes,
         updateTextBox,
-        deleteTextBox
+        deleteTextBox,
+        updatePool,
+        deletePool,
+        addLane,
+        updateLane,
+        deleteLane
     } = useDiagramStore();
 
     const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
@@ -35,6 +40,25 @@ export const PropertiesPanel: React.FC = () => {
     // Check if a TextBox is selected
     const selectedTextBoxId = selectedIds.length === 1 && !selectedShape && !selectedConnection ? selectedIds[0] : null;
     const selectedTextBox = selectedTextBoxId ? textBoxes.find(t => t.id === selectedTextBoxId) : null;
+
+    // Check if a Pool is selected
+    const selectedPoolId = selectedIds.length === 1 && !selectedShape && !selectedConnection && !selectedTextBox ? selectedIds[0] : null;
+    const selectedPool = selectedPoolId ? pools.find(p => p.id === selectedPoolId) : null;
+
+    // Check if a Lane is selected
+    let selectedLane: import('../core/types').Lane | null = null;
+    let selectedLanePoolId: string | null = null;
+
+    if (selectedIds.length === 1 && !selectedShape && !selectedConnection && !selectedTextBox && !selectedPool) {
+        for (const pool of pools) {
+            const lane = pool.lanes.find(l => l.id === selectedIds[0]);
+            if (lane) {
+                selectedLane = lane;
+                selectedLanePoolId = pool.id;
+                break;
+            }
+        }
+    }
 
     // Helper to calculate absolute position of a shape
     const getShapeAbsolutePosition = (shapeId: string): Position | null => {
@@ -56,7 +80,7 @@ export const PropertiesPanel: React.FC = () => {
         return null;
     };
 
-    if (!selectedShape && !selectedConnection && !selectedTextBox) {
+    if (!selectedShape && !selectedConnection && !selectedTextBox && !selectedPool && !selectedLane) {
         return (
             <div className="properties-panel">
                 <div className="properties-header">
@@ -401,6 +425,93 @@ export const PropertiesPanel: React.FC = () => {
                             >
                                 <Trash2 size={16} />
                                 削除
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {selectedPool && (
+                    <>
+                        <div className="property-group">
+                            <label>プール名</label>
+                            <input
+                                type="text"
+                                value={selectedPool.title}
+                                onChange={(e) => updatePool(selectedPool.id, { title: e.target.value })}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>幅 (px)</label>
+                            <input
+                                type="number"
+                                value={selectedPool.width}
+                                onChange={(e) => updatePool(selectedPool.id, { width: parseInt(e.target.value) || 1000 })}
+                                min={200}
+                                step={50}
+                            />
+                        </div>
+                        <div className="property-actions">
+                            <button
+                                className="action-btn"
+                                onClick={() => addLane(selectedPool.id)}
+                                style={{ marginBottom: '10px', width: '100%' }}
+                            >
+                                + レーンを追加
+                            </button>
+                            <button
+                                className="delete-btn"
+                                onClick={() => {
+                                    setConfirmDialog({
+                                        message: 'このプールを削除しますか？\n含まれるレーンとシェイプもすべて削除されます。',
+                                        onConfirm: () => {
+                                            deletePool(selectedPool.id);
+                                            setConfirmDialog(null);
+                                        }
+                                    });
+                                }}
+                            >
+                                <Trash2 size={16} />
+                                プールを削除
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {selectedLane && selectedLanePoolId && (
+                    <>
+                        <div className="property-group">
+                            <label>レーン名</label>
+                            <input
+                                type="text"
+                                value={selectedLane.title}
+                                onChange={(e) => updateLane(selectedLanePoolId!, selectedLane!.id, { title: e.target.value })}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>高さ (px)</label>
+                            <input
+                                type="number"
+                                value={selectedLane.height}
+                                onChange={(e) => updateLane(selectedLanePoolId!, selectedLane!.id, { height: parseInt(e.target.value) || 100 })}
+                                min={50}
+                                step={10}
+                            />
+                        </div>
+                        <div className="property-actions">
+                            <button
+                                className="delete-btn"
+                                onClick={() => {
+                                    setConfirmDialog({
+                                        message: 'このレーンを削除しますか？\n含まれるシェイプもすべて削除されます。',
+                                        onConfirm: () => {
+                                            deleteLane(selectedLanePoolId!, selectedLane!.id);
+                                            setConfirmDialog(null);
+                                        }
+                                    });
+                                }}
+                            >
+                                <Trash2 size={16} />
+                                レーンを削除
                             </button>
                         </div>
                     </>

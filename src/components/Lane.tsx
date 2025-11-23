@@ -48,7 +48,7 @@ export const LaneComponent: React.FC<Props> = ({ lane, poolId, poolOrientation }
     const handleMouseDown = (e: React.MouseEvent) => {
         // In select tool, allow canvas drag selection unless clicking lane title
         if (activeTool === 'select') {
-            if ((e.target as HTMLElement).closest('.lane-title')) {
+            if ((e.target as HTMLElement).closest('.lane-header')) {
                 e.stopPropagation();
                 selectItem(lane.id);
             } else if (e.target === e.currentTarget) {
