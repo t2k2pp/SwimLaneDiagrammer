@@ -12,6 +12,12 @@ export const Canvas: React.FC = () => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Ignore keyboard events if user is typing in an input/textarea
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+                return;
+            }
+
             // Undo: Ctrl+Z
             if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();
