@@ -46,6 +46,7 @@ interface DiagramActions {
     addTextBox: (position: Position) => void;
     updateTextBox: (id: ID, updates: Partial<import('./types').TextBox>) => void;
     deleteTextBox: (id: ID) => void;
+    updateConnection: (id: ID, updates: Partial<Connection>) => void;
 }
 
 const SNAP_SIZE = 20;
@@ -336,6 +337,15 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
             connections: newConnections,
             selectedIds: state.selectedIds.filter(id => id !== shapeId),
         });
+        get().addHistorySnapshot();
+    },
+
+    updateConnection: (id, updates) => {
+        set((state) => ({
+            connections: state.connections.map(c =>
+                c.id === id ? { ...c, ...updates } : c
+            )
+        }));
         get().addHistorySnapshot();
     },
 

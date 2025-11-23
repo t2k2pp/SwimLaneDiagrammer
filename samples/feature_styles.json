@@ -1,0 +1,150 @@
+{
+    "name": "Feature: Connection Styles",
+    "lastModified": 1700000000000,
+    "data": {
+        "pools": [
+            {
+                "id": "pool-1",
+                "title": "Styles Demo",
+                "position": {
+                    "x": 50,
+                    "y": 50
+                },
+                "width": 800,
+                "orientation": "horizontal",
+                "lanes": [
+                    {
+                        "id": "lane-1",
+                        "title": "Lane 1",
+                        "height": 500,
+                        "shapeIds": []
+                    }
+                ]
+            }
+        ],
+        "shapes": [
+            {
+                "id": "s1",
+                "type": "start",
+                "position": {
+                    "x": 50,
+                    "y": 50
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "A",
+                "parentId": "lane-1"
+            },
+            {
+                "id": "s2",
+                "type": "rect",
+                "position": {
+                    "x": 250,
+                    "y": 50
+                },
+                "size": {
+                    "width": 80,
+                    "height": 50
+                },
+                "label": "B",
+                "parentId": "lane-1"
+            },
+            {
+                "id": "s3",
+                "type": "start",
+                "position": {
+                    "x": 50,
+                    "y": 150
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "C",
+                "parentId": "lane-1"
+            },
+            {
+                "id": "s4",
+                "type": "rect",
+                "position": {
+                    "x": 250,
+                    "y": 150
+                },
+                "size": {
+                    "width": 80,
+                    "height": 50
+                },
+                "label": "D",
+                "parentId": "lane-1"
+            },
+            {
+                "id": "s5",
+                "type": "start",
+                "position": {
+                    "x": 50,
+                    "y": 250
+                },
+                "size": {
+                    "width": 40,
+                    "height": 40
+                },
+                "label": "E",
+                "parentId": "lane-1"
+            },
+            {
+                "id": "s6",
+                "type": "rect",
+                "position": {
+                    "x": 250,
+                    "y": 250
+                },
+                "size": {
+                    "width": 80,
+                    "height": 50
+                },
+                "label": "F",
+                "parentId": "lane-1"
+            }
+        ],
+        "connections": [
+            {
+                "id": "c1",
+                "sourceShapeId": "s1",
+                "targetShapeId": "s2",
+                "type": "straight",
+                "style": "solid",
+                "width": 2,
+                "color": "#646cff",
+                "label": "Solid / Arrow"
+            },
+            {
+                "id": "c2",
+                "sourceShapeId": "s3",
+                "targetShapeId": "s4",
+                "type": "straight",
+                "style": "dashed",
+                "width": 4,
+                "color": "#ff9800",
+                "startMarker": "circle",
+                "endMarker": "circle",
+                "label": "Dashed / Circles"
+            },
+            {
+                "id": "c3",
+                "sourceShapeId": "s5",
+                "targetShapeId": "s6",
+                "type": "straight",
+                "style": "dotted",
+                "width": 2,
+                "color": "#4caf50",
+                "startMarker": "none",
+                "endMarker": "none",
+                "label": "Dotted / None"
+            }
+        ],
+        "groups": {},
+        "textBoxes": []
+    }
+}

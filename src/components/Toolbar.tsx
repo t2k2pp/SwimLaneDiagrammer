@@ -3,6 +3,7 @@ import { Undo2, Redo2, Save, Upload, Trash2, FolderOpen, PanelRightClose, PanelR
 import { ConfirmDialog } from './ConfirmDialog';
 import { useDiagramStore } from '../core/store';
 import { ProjectManager } from './ProjectManager';
+import { normalizeProjectData } from '../utils/importUtils';
 import './Toolbar.css';
 
 export const Toolbar: React.FC = () => {
@@ -139,13 +140,26 @@ export const Toolbar: React.FC = () => {
                                 const reader = new FileReader();
                                 reader.onload = (e) => {
                                     try {
-                                        const data = JSON.parse(e.target?.result as string);
-                                        if (data.pools && data.shapes) {
-                                            loadDiagram(data);
+                                        const json = JSON.parse(e.target?.result as string);
+                                        // Handle both ProjectData (wrapped in data property) and direct DiagramState
+                                        const rawData = json.data || json;
+
+                                        if (rawData.pools) {
+                                            const normalizedData = normalizeProjectData(rawData);
+                                            loadDiagram({
+                                                ...normalizedData,
+                                                activeTool: 'select',
+                                                connectionSourceId: null,
+                                                poolPlacementMode: null,
+                                                propertiesPanelVisible: true,
+                                                clipboard: null,
+                                                currentProjectName: json.name || null,
+                                            } as any);
                                         } else {
                                             alert('Invalid diagram file');
                                         }
                                     } catch (err) {
+                                        console.error(err);
                                         alert('Failed to load diagram');
                                     }
                                 };

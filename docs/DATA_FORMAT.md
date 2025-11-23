@@ -74,28 +74,6 @@ Shapeは**配列**（手書き推奨）または**レコードオブジェクト
 - `start` (開始), `end` (終了)
 - `rect` (処理)
 - `diamond` (判断)
-- `circle` (円)
-- `document` (書類)
-- `database` (データベース)
-- `manual-input` (手動入力)
-- `delay` (遅延)
-
-### Connections (接続)
-
-Connectionオブジェクトの配列です。
-
-```json
-"connections": [
-  {
-    "id": "conn-1",
-    "sourceShapeId": "shape-1",
-    "targetShapeId": "shape-2"
-  }
-]
-```
-
-### TextBoxes (テキストボックス)
-
 独立したメモや説明を記述するためのTextBoxオブジェクトの配列です。
 
 ```json

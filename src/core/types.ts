@@ -49,6 +49,14 @@ export interface Connection {
     id: ID;
     sourceShapeId: ID;
     targetShapeId: ID;
+    type?: 'straight' | 'step' | 'bezier'; // Default: straight
+    style?: 'solid' | 'dashed' | 'dotted'; // Default: solid
+    startMarker?: 'none' | 'arrow' | 'circle'; // Default: none
+    endMarker?: 'none' | 'arrow' | 'circle'; // Default: arrow
+    width?: number; // Default: 2
+    color?: string; // Default: black
+    label?: string; // Optional label
+    controlPoints?: Position[]; // Manual routing points
 }
 
 export interface TextBox {
