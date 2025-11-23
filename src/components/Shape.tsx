@@ -98,7 +98,7 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
         >
             <span
                 className="shape-label"
-                style={{ color: shape.textColor || undefined }}
+                style={{ color: shape.textColor === 'auto' ? 'inherit' : shape.textColor }}
             >
                 {shape.label}
             </span>

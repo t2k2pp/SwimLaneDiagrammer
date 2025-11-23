@@ -131,22 +131,14 @@ export const PropertiesPanel: React.FC = () => {
                         </div>
                         <div className="property-group">
                             <label>テキスト色</label>
-                            <div className="text-color-selector">
-                                <button
-                                    className={`text-color-btn ${!selectedShape.textColor || selectedShape.textColor === 'black' ? 'active' : ''}`}
-                                    onClick={() => updateShape(selectedShape.id, { textColor: 'black' })}
-                                    title="黒"
-                                >
-                                    <span style={{ color: 'black' }}>A</span>
-                                </button>
-                                <button
-                                    className={`text-color-btn ${selectedShape.textColor === 'white' ? 'active' : ''}`}
-                                    onClick={() => updateShape(selectedShape.id, { textColor: 'white' })}
-                                    title="白"
-                                >
-                                    <span style={{ color: 'white', textShadow: '0 0 2px black' }}>A</span>
-                                </button>
-                            </div>
+                            <select
+                                value={selectedShape.textColor || 'auto'}
+                                onChange={(e) => updateShape(selectedShape.id, { textColor: e.target.value as any })}
+                            >
+                                <option value="auto">自動 (テーマ追従)</option>
+                                <option value="black">黒</option>
+                                <option value="white">白</option>
+                            </select>
                         </div>
                         <div className="property-actions">
                             <button
@@ -320,6 +312,71 @@ export const PropertiesPanel: React.FC = () => {
 
                 {selectedTextBox && (
                     <>
+                        <div className="property-group">
+                            <label>文字色</label>
+                            <select
+                                value={selectedTextBox.textColor || 'auto'}
+                                onChange={(e) => updateTextBox(selectedTextBox.id, { textColor: e.target.value as any })}
+                            >
+                                <option value="auto">自動 (テーマ追従)</option>
+                                <option value="black">黒</option>
+                                <option value="white">白</option>
+                            </select>
+                        </div>
+                        <div className="property-group">
+                            <label>背景色</label>
+                            <input
+                                type="color"
+                                value={selectedTextBox.backgroundColor || '#ffffff'}
+                                onChange={(e) => updateTextBox(selectedTextBox.id, { backgroundColor: e.target.value })}
+                                style={{ width: '100%', height: '40px' }}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>不透明度 ({Math.round((selectedTextBox.opacity ?? 1) * 100)}%)</label>
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.25"
+                                value={selectedTextBox.opacity ?? 1}
+                                onChange={(e) => updateTextBox(selectedTextBox.id, { opacity: parseFloat(e.target.value) })}
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedTextBox.showScrollBar ?? true}
+                                    onChange={(e) => updateTextBox(selectedTextBox.id, { showScrollBar: e.target.checked })}
+                                    style={{ marginRight: '8px' }}
+                                />
+                                スクロールバーを表示
+                            </label>
+                        </div>
+                        <div className="property-group">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedTextBox.showBorder ?? true}
+                                    onChange={(e) => updateTextBox(selectedTextBox.id, { showBorder: e.target.checked })}
+                                    style={{ marginRight: '8px' }}
+                                />
+                                境界線を表示
+                            </label>
+                        </div>
+                        {(selectedTextBox.showBorder ?? true) && (
+                            <div className="property-group">
+                                <label>境界線色</label>
+                                <input
+                                    type="color"
+                                    value={selectedTextBox.borderColor || '#e0e0e0'}
+                                    onChange={(e) => updateTextBox(selectedTextBox.id, { borderColor: e.target.value })}
+                                    style={{ width: '100%', height: '40px' }}
+                                />
+                            </div>
+                        )}
                         <div className="property-group">
                             <label>内容 (Markdown)</label>
                             <textarea

@@ -134,11 +134,11 @@ export const Toolbar: React.FC = () => {
                         ref={fileInputRef}
                         style={{ display: 'none' }}
                         accept=".json"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (file) {
                                 const reader = new FileReader();
-                                reader.onload = (e) => {
+                                reader.onload = async (e) => {
                                     try {
                                         const json = JSON.parse(e.target?.result as string);
                                         // Handle both ProjectData (wrapped in data property) and direct DiagramState
@@ -146,6 +146,10 @@ export const Toolbar: React.FC = () => {
 
                                         if (rawData.pools) {
                                             const normalizedData = normalizeProjectData(rawData);
+
+                                            // Determine project name: use JSON name or file name (without extension)
+                                            const projectName = json.name || file.name.replace(/\.[^/.]+$/, "");
+
                                             loadDiagram({
                                                 ...normalizedData,
                                                 activeTool: 'select',
@@ -153,8 +157,12 @@ export const Toolbar: React.FC = () => {
                                                 poolPlacementMode: null,
                                                 propertiesPanelVisible: true,
                                                 clipboard: null,
-                                                currentProjectName: json.name || null,
+                                                currentProjectName: projectName,
                                             } as any);
+
+                                            // Auto-save to IndexedDB
+                                            const { saveCurrentProject } = useDiagramStore.getState();
+                                            await saveCurrentProject();
                                         } else {
                                             alert('Invalid diagram file');
                                         }

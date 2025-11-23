@@ -19,7 +19,7 @@ export interface Shape {
     size: Size;
     label?: string;
     color?: string; // Custom color (optional)
-    textColor?: 'white' | 'black'; // Text color (optional)
+    textColor?: 'auto' | 'white' | 'black'; // Text color (optional)
     parentId: ID; // ID of the Lane it belongs to
     groupId?: ID; // ID of the Group it belongs to
 }
@@ -64,6 +64,12 @@ export interface TextBox {
     position: Position; // Absolute position on Canvas
     size: Size;
     content: string; // Markdown text
+    textColor?: 'auto' | 'black' | 'white'; // Default: 'auto'
+    backgroundColor?: string; // Default: 'transparent'
+    opacity?: number; // 0-1, Default: 1
+    showScrollBar?: boolean; // Default: true
+    borderColor?: string; // Default: theme border color
+    showBorder?: boolean; // Default: true
 }
 
 export interface DiagramState {

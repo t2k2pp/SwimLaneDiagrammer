@@ -104,7 +104,22 @@ export const TextBoxComponent: React.FC<Props> = ({ textBox }) => {
                 left: textBox.position.x,
                 top: textBox.position.y,
                 width: textBox.size.width,
-                height: textBox.size.height
+                height: textBox.size.height,
+                backgroundColor: (() => {
+                    const bg = textBox.backgroundColor || '#ffffff';
+                    const opacity = textBox.opacity ?? 1;
+                    if (bg === 'transparent') return 'transparent';
+                    if (bg.startsWith('#')) {
+                        // Convert opacity to hex
+                        const alpha = Math.round(opacity * 255).toString(16).padStart(2, '0');
+                        return `${bg}${alpha}`;
+                    }
+                    return bg;
+                })(),
+                // opacity: textBox.opacity ?? 1, // Removed to prevent text fading
+                color: textBox.textColor === 'auto' ? 'inherit' : textBox.textColor,
+                overflow: textBox.showScrollBar === false ? 'hidden' : 'auto',
+                border: textBox.showBorder === false ? 'none' : `2px solid ${textBox.borderColor || 'var(--color-border)'}`
             }}
             onMouseDown={handleMouseDown}
             onDoubleClick={handleDoubleClick}
