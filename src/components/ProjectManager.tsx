@@ -70,6 +70,7 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({ isOpen, onClose 
             loadDiagram({
                 ...projectData.data,
                 groups: projectData.data.groups || {},
+                textBoxes: (projectData.data as any).textBoxes || [],
                 selectedIds: [],
                 activeTool: 'select' as const,
                 connectionSourceId: null,

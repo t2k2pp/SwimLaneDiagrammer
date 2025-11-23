@@ -2,11 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useDiagramStore } from '../core/store';
 import { PoolComponent } from './Pool';
 import { ConnectionLayer } from './ConnectionLayer';
+import { TextBoxComponent } from './TextBox';
 import './Canvas.css';
 import type { Position } from '../core/types';
 
 export const Canvas: React.FC = () => {
-    const { pools, shapes, groups, connections, selectedIds, addPool, clearSelection, copyShape, pasteShape, undo, redo, activeTool, poolPlacementMode, selectMultipleShapes, deleteShape, deletePool, deleteConnection } = useDiagramStore();
+    const { pools, shapes, groups, connections, textBoxes, selectedIds, addPool, clearSelection, copyShape, pasteShape, undo, redo, activeTool, poolPlacementMode, selectMultipleShapes, deleteShape, deletePool, deleteConnection, deleteTextBox } = useDiagramStore();
     const [selectionBox, setSelectionBox] = useState<{ start: Position; current: Position } | null>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -65,6 +66,13 @@ export const Canvas: React.FC = () => {
                 // Check if it's a shape
                 if (shapes[selectedId]) {
                     deleteShape(selectedId);
+                    return;
+                }
+
+                // Check if it's a textbox
+                const isTextBox = textBoxes.some(tb => tb.id === selectedId);
+                if (isTextBox) {
+                    deleteTextBox(selectedId);
                     return;
                 }
             }
@@ -301,6 +309,11 @@ export const Canvas: React.FC = () => {
                     />
                 );
             })}
+
+            {/* Render TextBoxes */}
+            {textBoxes.map(textBox => (
+                <TextBoxComponent key={textBox.id} textBox={textBox} />
+            ))}
 
             {selectionBox && (
                 <div

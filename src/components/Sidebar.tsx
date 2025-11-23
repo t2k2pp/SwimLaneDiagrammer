@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDiagramStore } from '../core/store';
-import { MousePointer, ArrowRight, Square, Circle, Diamond, PlayCircle, StopCircle, Columns2, Rows2 } from 'lucide-react';
+import { MousePointer, ArrowRight, Square, Circle, Diamond, PlayCircle, StopCircle, Columns2, Rows2, Type } from 'lucide-react';
 import './Sidebar.css';
 
 export const Sidebar: React.FC = () => {
-    const { activeTool, setActiveTool, poolPlacementMode, setPoolPlacementMode } = useDiagramStore();
+    const { activeTool, setActiveTool, poolPlacementMode, setPoolPlacementMode, addTextBox } = useDiagramStore();
 
     const handleDragStart = (e: React.DragEvent, type: string) => {
         e.dataTransfer.setData('application/reactflow', type);
@@ -104,6 +104,20 @@ export const Sidebar: React.FC = () => {
                         <path d="M2 4h12v12H2V4z" />
                         <path d="M14 4v12c2-2 2-10 0-12z" />
                     </svg>
+                </button>
+            </div>
+
+            {/* TextBox */}
+            <div className="sidebar-separator" />
+            <div className="sidebar-group">
+                <button
+                    className="sidebar-btn"
+                    title="Add TextBox"
+                    onClick={() => {
+                        addTextBox({ x: 100, y: 100 });
+                    }}
+                >
+                    <Type size={20} />
                 </button>
             </div>
         </div>

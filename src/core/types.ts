@@ -19,6 +19,7 @@ export interface Shape {
     size: Size;
     label?: string;
     color?: string; // Custom color (optional)
+    textColor?: 'white' | 'black'; // Text color (optional)
     parentId: ID; // ID of the Lane it belongs to
     groupId?: ID; // ID of the Group it belongs to
 }
@@ -50,11 +51,19 @@ export interface Connection {
     targetShapeId: ID;
 }
 
+export interface TextBox {
+    id: ID;
+    position: Position; // Absolute position on Canvas
+    size: Size;
+    content: string; // Markdown text
+}
+
 export interface DiagramState {
     pools: Pool[];
     shapes: Record<ID, Shape>;
     groups: Record<ID, Group>;
     connections: Connection[];
+    textBoxes: TextBox[];
     selectedIds: ID[];
     activeTool: 'select' | 'connection';
     connectionSourceId: ID | null;

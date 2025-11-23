@@ -5,7 +5,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 import './PropertiesPanel.css';
 
 export const PropertiesPanel: React.FC = () => {
-    const { pools, shapes, selectedIds, deletePool, deleteShape, updatePool, updateLane } = useDiagramStore();
+    const { pools, shapes, textBoxes, selectedIds, deletePool, deleteShape, updatePool, updateLane, updateTextBox, deleteTextBox } = useDiagramStore();
     const [confirmDialog, setConfirmDialog] = React.useState<{ message: string; onConfirm: () => void } | null>(null);
 
     if (selectedIds.length === 0) {
@@ -208,6 +208,31 @@ export const PropertiesPanel: React.FC = () => {
                                 ))}
                             </div>
                         </div>
+                        <div className="property-group">
+                            <label>テキスト色</label>
+                            <div className="text-color-selector">
+                                <button
+                                    className={`text-color-btn ${!selectedShape.textColor || selectedShape.textColor === 'black' ? 'active' : ''}`}
+                                    onClick={() => {
+                                        const { updateShape } = useDiagramStore.getState();
+                                        updateShape(selectedShape.id, { textColor: 'black' });
+                                    }}
+                                    title="黒"
+                                >
+                                    <span style={{ color: 'black' }}>A</span>
+                                </button>
+                                <button
+                                    className={`text-color-btn ${selectedShape.textColor === 'white' ? 'active' : ''}`}
+                                    onClick={() => {
+                                        const { updateShape } = useDiagramStore.getState();
+                                        updateShape(selectedShape.id, { textColor: 'white' });
+                                    }}
+                                    title="白"
+                                >
+                                    <span style={{ color: 'white', textShadow: '0 0 2px black' }}>A</span>
+                                </button>
+                            </div>
+                        </div>
                         <div className="property-actions">
                             <button
                                 className="delete-btn"
@@ -223,6 +248,94 @@ export const PropertiesPanel: React.FC = () => {
                             >
                                 <Trash2 size={16} />
                                 Shapeを削除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {confirmDialog && (
+                    <ConfirmDialog
+                        message={confirmDialog.message}
+                        onConfirm={confirmDialog.onConfirm}
+                        onCancel={() => setConfirmDialog(null)}
+                    />
+                )}
+            </>
+        );
+    }
+
+    // Check if selected item is a textbox
+    const selectedTextBox = textBoxes.find(tb => tb.id === selectedId);
+    if (selectedTextBox) {
+        return (
+            <>
+                <div className="properties-panel">
+                    <div className="properties-header">
+                        <h3>TextBox プロパティ</h3>
+                    </div>
+                    <div className="properties-content">
+                        <div className="property-group">
+                            <label>コンテンツ (Markdown)</label>
+                            <textarea
+                                value={selectedTextBox.content}
+                                onChange={(e) => updateTextBox(selectedTextBox.id, { content: e.target.value })}
+                                placeholder="Markdown形式でテキストを入力..."
+                                rows={10}
+                                style={{
+                                    width: '100%',
+                                    padding: 'var(--spacing-sm)',
+                                    backgroundColor: 'var(--color-bg-primary)',
+                                    border: '1px solid var(--color-border)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    color: 'var(--color-text-primary)',
+                                    fontSize: '0.9rem',
+                                    fontFamily: 'monospace',
+                                    resize: 'vertical'
+                                }}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>幅 (px)</label>
+                            <input
+                                type="number"
+                                value={selectedTextBox.size.width}
+                                onChange={(e) => {
+                                    updateTextBox(selectedTextBox.id, {
+                                        size: { ...selectedTextBox.size, width: parseInt(e.target.value) || 200 }
+                                    });
+                                }}
+                                min={200}
+                                step={20}
+                            />
+                        </div>
+                        <div className="property-group">
+                            <label>高さ (px)</label>
+                            <input
+                                type="number"
+                                value={selectedTextBox.size.height}
+                                onChange={(e) => {
+                                    updateTextBox(selectedTextBox.id, {
+                                        size: { ...selectedTextBox.size, height: parseInt(e.target.value) || 100 }
+                                    });
+                                }}
+                                min={100}
+                                step={20}
+                            />
+                        </div>
+                        <div className="property-actions">
+                            <button
+                                className="delete-btn"
+                                onClick={() => {
+                                    setConfirmDialog({
+                                        message: 'このTextBoxを削除しますか？',
+                                        onConfirm: () => {
+                                            deleteTextBox(selectedTextBox.id);
+                                            setConfirmDialog(null);
+                                        }
+                                    });
+                                }}
+                            >
+                                <Trash2 size={16} />
+                                TextBoxを削除
                             </button>
                         </div>
                     </div>

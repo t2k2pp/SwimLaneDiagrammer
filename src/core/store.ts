@@ -42,6 +42,10 @@ interface DiagramActions {
     ungroupShapes: () => void;
     // Theme
     setTheme: (theme: 'light' | 'dark') => void;
+    // TextBox
+    addTextBox: (position: Position) => void;
+    updateTextBox: (id: ID, updates: Partial<import('./types').TextBox>) => void;
+    deleteTextBox: (id: ID) => void;
 }
 
 const SNAP_SIZE = 20;
@@ -54,6 +58,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     shapes: {},
     groups: {},
     connections: [],
+    textBoxes: [],
     selectedIds: [],
     activeTool: 'select',
     connectionSourceId: null,
@@ -497,6 +502,7 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
             shapes: state.shapes,
             groups: state.groups,
             connections: state.connections,
+            textBoxes: state.textBoxes,
             selectedIds: state.selectedIds,
             activeTool: state.activeTool,
             connectionSourceId: state.connectionSourceId,
@@ -829,5 +835,37 @@ export const useDiagramStore = create<DiagramState & DiagramActions>((set, get) 
     selectMultipleShapes: (ids) => set({ selectedIds: ids }),
 
     clearSelection: () => set({ selectedIds: [] }),
+
+    // TextBox actions
+    addTextBox: (position) => {
+        const textBoxId = uuidv4();
+        const newTextBox: import('./types').TextBox = {
+            id: textBoxId,
+            position: { x: snap(position.x), y: snap(position.y) },
+            size: { width: 400, height: 200 },
+            content: ''
+        };
+        set((state) => ({
+            textBoxes: [...state.textBoxes, newTextBox],
+            selectedIds: [textBoxId]
+        }));
+        get().addHistorySnapshot();
+    },
+
+    updateTextBox: (id, updates) => {
+        set((state) => ({
+            textBoxes: state.textBoxes.map(tb =>
+                tb.id === id ? { ...tb, ...updates } : tb
+            )
+        }));
+    },
+
+    deleteTextBox: (id) => {
+        set((state) => ({
+            textBoxes: state.textBoxes.filter(tb => tb.id !== id),
+            selectedIds: state.selectedIds.filter(sid => sid !== id)
+        }));
+        get().addHistorySnapshot();
+    },
 
 }));

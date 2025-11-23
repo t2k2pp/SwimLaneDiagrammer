@@ -96,7 +96,12 @@ export const ShapeComponent: React.FC<Props> = ({ shape }) => {
                 ...(shape.color ? { backgroundColor: shape.color } : {})
             }}
         >
-            <span className="shape-label">{shape.label}</span>
+            <span
+                className="shape-label"
+                style={{ color: shape.textColor || undefined }}
+            >
+                {shape.label}
+            </span>
         </div>
     );
 };

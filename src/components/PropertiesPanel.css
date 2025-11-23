@@ -151,3 +151,34 @@
     box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
     transform: scale(1.05);
 }
+
+.text-color-selector {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.text-color-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--color-border);
+    background-color: var(--color-bg-tertiary);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.text-color-btn:hover {
+    transform: scale(1.1);
+    border-color: var(--color-primary);
+}
+
+.text-color-btn.active {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+    transform: scale(1.05);
+}
